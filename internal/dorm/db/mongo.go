@@ -50,7 +50,14 @@ func init() {
 		(&GT{}).GetTag():    gt,
 		(&GTE{}).GetTag():   gte,
 
+		(&AND{}).GetTag(): and,
+		(&OR{}).GetTag():  or,
+		(&NOR{}).GetTag(): nor,
+
 		(&Sum{}).GetTag(): sum,
+		(&Avg{}).GetTag(): avg,
+		(&Min{}).GetTag(): min,
+		(&Max{}).GetTag(): max,
 	})
 }
 
@@ -110,6 +117,8 @@ func (d Dorm) Find(ctx context.Context, expr clause.Expression, findOpt clause.F
 	if builder.Agg != nil {
 		return d.aggregation(ctx, builder)
 	}
+
+	fmt.Println(builder.Vars)
 	opt := &options.FindOptions{}
 	opt = opt.SetLimit(findOpt.Size)
 	opt = opt.SetSkip((findOpt.Page - 1) * findOpt.Size)
