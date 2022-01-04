@@ -4,71 +4,77 @@ package db
 
 import "github.com/quanxiang-cloud/structor/internal/dorm/clause"
 
-type AND struct {
-	clause.AND
+type MUST struct {
+	clause.MUST
 }
 
-func and() clause.Expression {
-	return &AND{}
+func must() clause.Expression {
+	return &MUST{}
 }
 
 // Build build mongo bson
-func (and *AND) Build(builder clause.Builder) {
-	vars := make([]interface{}, 0, len(and.Vars))
-	for _, value := range and.Vars {
+func (m *MUST) Build(builder clause.Builder) {
+	vars := make([]interface{}, 0, len(m.Vars))
+	for _, value := range m.Vars {
 		value.(clause.Expression).Build(builder)
-		vars = append(vars, builder.(*MONGO).Vars)
+		vars = append(vars, builder.GetVar())
 	}
 	builder.WriteString("$and")
 	builder.AddVar(vars)
 }
 
-// OR or
-type OR struct {
-	clause.OR
+type SHOULD struct {
+	clause.SHOULD
 }
 
-func or() clause.Expression {
-	return &OR{}
-}
-
-// GetTag get tag
-func (or OR) GetTag() string {
-	return "or"
+func should() clause.Expression {
+	return &SHOULD{}
 }
 
 // Build build mongo bson
-func (or *OR) Build(builder clause.Builder) {
-	vars := make([]interface{}, 0, len(or.Vars))
-	for _, value := range or.Vars {
+func (s *SHOULD) Build(builder clause.Builder) {
+	vars := make([]interface{}, 0, len(s.Vars))
+	for _, value := range s.Vars {
 		value.(clause.Expression).Build(builder)
-		vars = append(vars, builder.(*MONGO).Vars)
+		vars = append(vars, builder.GetVar())
 	}
 	builder.WriteString("$or")
 	builder.AddVar(vars)
 }
 
-// NOR nor
-type NOR struct {
-	clause.NOR
+type MUSTNOT struct {
+	clause.MUSTNOT
 }
 
-func nor() clause.Expression {
-	return &NOR{}
-}
-
-// GetTag get tag
-func (nor NOR) GetTag() string {
-	return "nor"
+func mustNot() clause.Expression {
+	return &MUSTNOT{}
 }
 
 // Build build mongo bson
-func (nor *NOR) Build(builder clause.Builder) {
-	vars := make([]interface{}, 0, len(nor.Vars))
-	for _, value := range nor.Vars {
+func (m *MUSTNOT) Build(builder clause.Builder) {
+	vars := make([]interface{}, 0, len(m.Vars))
+	for _, value := range m.Vars {
 		value.(clause.Expression).Build(builder)
-		vars = append(vars, builder.(*MONGO).Vars)
+		vars = append(vars, builder.GetVar())
 	}
 	builder.WriteString("$nor")
+	builder.AddVar(vars)
+}
+
+type RANGE struct {
+	clause.RANGE
+}
+
+func range1() clause.Expression {
+	return &RANGE{}
+}
+
+func (r *RANGE) Build(builder clause.Builder) {
+	vars := make([]interface{}, 0, len(r.Vars))
+	for _, value := range r.Vars {
+		value.(clause.Expression).Build(builder)
+		vars = append(vars, builder.GetVar())
+	}
+	builder.WriteString("$and")
 	builder.AddVar(vars)
 }

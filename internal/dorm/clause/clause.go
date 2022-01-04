@@ -15,6 +15,7 @@ type QueryBuilder interface {
 	Writer
 	WriteQuoted(field string)
 	AddVar(value interface{})
+	GetVar() interface{}
 }
 
 // AggBuilder AggBuilder

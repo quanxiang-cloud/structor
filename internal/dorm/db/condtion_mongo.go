@@ -6,61 +6,57 @@ import (
 	"github.com/quanxiang-cloud/structor/internal/dorm/clause"
 )
 
-// IN Whether a value is within a set of values
-type IN struct {
-	clause.IN
+type Terms struct {
+	clause.Terms
 }
 
-func in() clause.Expression {
-	return &IN{}
+func terms() clause.Expression {
+	return &Terms{}
 }
 
 // Build build mongo bson
-func (in *IN) Build(builder clause.Builder) {
+func (t *Terms) Build(builder clause.Builder) {
 	builder.WriteString("$in")
-	builder.AddVar(in.Values)
-	builder.WriteQuoted(in.Column)
+	builder.AddVar(t.Values)
+	builder.WriteQuoted(t.Column)
 }
 
-// LIKE fuzzy
-type LIKE struct {
-	clause.LIKE
+type Match struct {
+	clause.Match
 }
 
-func like() clause.Expression {
-	return &LIKE{}
+func match() clause.Expression {
+	return &Match{}
 }
 
 // Build build mongo bson
-func (like *LIKE) Build(builder clause.Builder) {
+func (m *Match) Build(builder clause.Builder) {
 	builder.WriteString("$regex")
-	builder.AddVar(like.Values)
-	builder.WriteQuoted(like.Column)
+	builder.AddVar(m.Values)
+	builder.WriteQuoted(m.Column)
 }
 
-// EQUAL equal
-type EQUAL struct {
-	clause.EQUAL
+type Term struct {
+	clause.Term
 }
 
-func equal() clause.Expression {
-	return &EQUAL{}
+func term() clause.Expression {
+	return &Term{}
 }
 
 // Build build mongo bson
-func (equal *EQUAL) Build(builder clause.Builder) {
-	builder.WriteQuoted(equal.Column)
-	switch len(equal.Values) {
+func (t *Term) Build(builder clause.Builder) {
+	builder.WriteQuoted(t.Column)
+	switch len(t.Values) {
 	case 0:
-		equal.Values = append(equal.Values, "NULL")
+		t.Values = append(t.Values, "NULL")
 	case 1:
-		builder.AddVar(equal.Values[0])
+		builder.AddVar(t.Values[0])
 	default:
-		builder.AddVar(equal.Values)
+		builder.AddVar(t.Values)
 	}
 }
 
-// LT less than
 type LT struct {
 	clause.LT
 }

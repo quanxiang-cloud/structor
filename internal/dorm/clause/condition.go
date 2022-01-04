@@ -1,62 +1,59 @@
 package clause
 
-// IN Whether a value is within a set of values
-type IN struct {
+type Terms struct {
 	Column string
 	Values []interface{}
 }
 
 // GetTag get tag
-func (in *IN) GetTag() string {
-	return "in"
+func (t *Terms) GetTag() string {
+	return "terms"
 }
 
 // Set set value
-func (in *IN) Set(column string, values ...interface{}) {
-	in.Column = column
-	in.Values = values
+func (t *Terms) Set(column string, values ...interface{}) {
+	t.Column = column
+	t.Values = values
 }
 
-// LIKE fuzzy query
-type LIKE struct {
+type Match struct {
 	Column string
 	Values interface{}
 }
 
 // GetTag get tag
-func (like *LIKE) GetTag() string {
-	return "like"
+func (m *Match) GetTag() string {
+	return "match"
 }
 
 // Set set value
-func (like *LIKE) Set(column string, values ...interface{}) {
+func (m *Match) Set(column string, values ...interface{}) {
 	var checkString = func(value interface{}) bool {
 		_, ok := value.(string)
 		return ok
 	}
-	like.Column = column
+	m.Column = column
 	if len(values) != 1 || !checkString(values[0]) {
-		like.Values = "NULL"
+		m.Values = "NULL"
 	} else {
-		like.Values = values[0]
+		m.Values = values[0]
 	}
 }
 
-// EQUAL equal
-type EQUAL struct {
+type Term struct {
 	Column string
 	Values []interface{}
 }
 
 // GetTag get tag
-func (equal *EQUAL) GetTag() string {
-	return "eq"
+func (t *Term) GetTag() string {
+	return "term"
 }
 
 // Set set value
-func (equal *EQUAL) Set(column string, values ...interface{}) {
-	equal.Column = column
-	equal.Values = values
+func (t *Term) Set(column string, values ...interface{}) {
+	t.Column = column
+	t.Values = values
 }
 
 type conditionOP struct {

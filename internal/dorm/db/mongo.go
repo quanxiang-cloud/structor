@@ -42,17 +42,18 @@ func init() {
 
 	// expressions
 	clause.SetExpressions(map[string]clause.Expr{
-		(&IN{}).GetTag():    in,
-		(&LIKE{}).GetTag():  like,
-		(&EQUAL{}).GetTag(): equal,
+		(&Terms{}).GetTag(): terms,
+		(&Match{}).GetTag(): match,
+		(&Term{}).GetTag():  term,
 		(&LT{}).GetTag():    lt,
 		(&LTE{}).GetTag():   lte,
 		(&GT{}).GetTag():    gt,
 		(&GTE{}).GetTag():   gte,
 
-		(&AND{}).GetTag(): and,
-		(&OR{}).GetTag():  or,
-		(&NOR{}).GetTag(): nor,
+		(&MUST{}).GetTag():    must,
+		(&MUSTNOT{}).GetTag(): mustNot,
+		(&SHOULD{}).GetTag():  should,
+		(&RANGE{}).GetTag():   range1,
 
 		(&Sum{}).GetTag(): sum,
 		(&Avg{}).GetTag(): avg,
@@ -238,6 +239,10 @@ func (m *MONGO) AddVar(value interface{}) {
 		m.Vars[key] = value
 		return
 	}
+}
+
+func (m *MONGO) GetVar() interface{} {
+	return m.Vars
 }
 
 // WriteQuotedAgg WriteQuotedAgg
