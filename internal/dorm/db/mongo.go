@@ -5,7 +5,6 @@ package db
 import (
 	"context"
 	"flag"
-	"fmt"
 	"strings"
 
 	mgc "github.com/quanxiang-cloud/cabin/tailormade/db/mongo"
@@ -66,6 +65,15 @@ func init() {
 type Dorm struct {
 	db *mongo.Database
 	C  *mongo.Collection
+
+	builder *MONGO
+	opt     *options.FindOptions
+}
+
+type option struct {
+	offset int64
+	limit  int64
+	sort   bson.D
 }
 
 func New() (*Dorm, error) {
@@ -90,18 +98,95 @@ func New() (*Dorm, error) {
 	}, nil
 }
 
-func (d Dorm) Table(tablename string) *Dorm {
+func (d *Dorm) Table(tablename string) *Dorm {
 	return &Dorm{
-		C: d.db.Collection(tablename),
+		C:       d.db.Collection(tablename),
+		builder: new(MONGO),
+		opt:     new(options.FindOptions),
 	}
 }
+func (d *Dorm) Where(expr clause.Expression) *Dorm {
+	expr.Build(d.builder)
+	return d
+}
+func (d *Dorm) Select(expr clause.Expression) *Dorm {
+	expr.Build(d.builder)
+	bsons := make([]bson.M, 0)
+	if vars := d.builder.Vars; len(vars) != 0 {
+		bsons = append(bsons, bson.M{"$match": vars})
+	}
+	bsons = append(bsons, bson.M{
+		"$group": d.builder.Agg,
+	}, bson.M{
+		"$project": bson.M{"_id": 0},
+	})
+	return d
+}
+func (d *Dorm) Limit(limit int64) *Dorm {
+	d.opt = d.opt.SetLimit(limit)
+	return d
+}
+func (d *Dorm) Offset(offset int64) *Dorm {
+	d.opt = d.opt.SetSkip(offset)
+	return d
+}
+func (d *Dorm) Order(arr ...string) *Dorm {
+	sort := make(bson.D, 0, len(arr))
+	for _, elem := range arr {
+		if strings.HasPrefix(elem, "-") {
+			sort = append(sort, bson.E{Key: elem[1:], Value: -1})
+			continue
+		}
+		sort = append(sort, bson.E{Key: elem, Value: 1})
+	}
 
-// FindOne find one entity
-func (d Dorm) FindOne(ctx context.Context, expr clause.Expression) (clause.Data, error) {
-	builder := &MONGO{}
-	expr.Build(builder)
+	d.opt = d.opt.SetSort(sort)
+	return d
+}
 
-	singleResult := d.C.FindOne(ctx, builder.Vars)
+func (d *Dorm) find(ctx context.Context) ([]clause.Data, error) {
+	cursor, err := d.C.Find(ctx, d.builder.Vars, d.opt)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]clause.Data, 0)
+	err = cursor.All(ctx, &result)
+	if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
+		return nil, nil
+	}
+
+	return result, err
+}
+
+func (d *Dorm) agg(ctx context.Context) ([]clause.Data, error) {
+	bsons := make([]bson.M, 0)
+	if vars := d.builder.Vars; len(vars) != 0 {
+		bsons = append(bsons, bson.M{"$match": vars})
+	}
+	bsons = append(bsons, bson.M{
+		"$group": d.builder.Agg,
+	}, bson.M{
+		"$project": bson.M{"_id": 0},
+	})
+
+	cursor, err := d.C.Aggregate(ctx, bsons, nil)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]clause.Data, 0)
+	err = cursor.All(ctx, &result)
+
+	if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
+		return nil, nil
+	}
+
+	return result, err
+}
+
+func (d *Dorm) FindOne(ctx context.Context) (clause.Data, error) {
+	singleResult := d.C.FindOne(ctx, d.builder.Vars)
+
 	var result = make(clause.Data)
 	err := singleResult.Decode(&result)
 	if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
@@ -110,108 +195,39 @@ func (d Dorm) FindOne(ctx context.Context, expr clause.Expression) (clause.Data,
 	return result, err
 }
 
-// Find find entities
-func (d Dorm) Find(ctx context.Context, expr clause.Expression, findOpt clause.FindOptions) ([]clause.Data, error) {
-	builder := &MONGO{}
-	expr.Build(builder)
-
-	if builder.Agg != nil {
-		return d.aggregation(ctx, builder)
+func (d *Dorm) Find(ctx context.Context) ([]clause.Data, error) {
+	// FIXME Should configure `group by` syntax implementation
+	if len(d.builder.Agg) != 0 {
+		return d.agg(ctx)
 	}
 
-	fmt.Println(builder.Vars)
-	opt := &options.FindOptions{}
-	opt = opt.SetLimit(findOpt.Size)
-	opt = opt.SetSkip((findOpt.Page - 1) * findOpt.Size)
-	opt = opt.SetSort(sort(findOpt.Sort...))
-	cursor, err := d.C.Find(ctx, builder.Vars, opt)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]clause.Data, 0)
-	err = cursor.All(ctx, &result)
-
-	return result, err
+	return d.find(ctx)
 }
 
-// Count count entities
-func (d Dorm) Count(ctx context.Context, expr clause.Expression) (int64, error) {
-	builder := &MONGO{}
-	expr.Build(builder)
-
-	return d.C.CountDocuments(ctx, builder.Vars)
+func (d *Dorm) Count(ctx context.Context) (int64, error) {
+	return d.C.CountDocuments(ctx, d.builder.Vars)
 }
-
-// Insert insert entities
-func (d Dorm) Insert(ctx context.Context, entity ...interface{}) error {
-	_, err := d.C.InsertMany(ctx, entity)
+func (d *Dorm) Insert(ctx context.Context, entirties ...interface{}) error {
+	_, err := d.C.InsertMany(ctx, entirties)
 	return err
 }
-
-// Update update entities
-func (d Dorm) Update(ctx context.Context, expr clause.Expression, entity interface{}) (int64, error) {
-	builder := &MONGO{}
-	expr.Build(builder)
-
-	result, err := d.C.UpdateMany(ctx, builder.Vars, bson.M{"$set": entity})
-	if err != nil {
-		return 0, err
-	}
-	return result.ModifiedCount, nil
+func (d *Dorm) Update(ctx context.Context, entity interface{}) (int64, error) {
+	result, err := d.C.UpdateMany(ctx, d.builder.Vars,
+		bson.M{
+			"$set": entity,
+		},
+	)
+	return result.ModifiedCount, err
 }
-
-// Delete delete entities with condition
-func (d Dorm) Delete(ctx context.Context, expr clause.Expression) (int64, error) {
-	builder := &MONGO{}
-	expr.Build(builder)
-
-	result, err := d.C.DeleteMany(ctx, builder.Vars)
-	if err != nil {
-		return 0, err
-	}
-	return result.DeletedCount, nil
-}
-
-func (d Dorm) aggregation(ctx context.Context, b *MONGO) ([]clause.Data, error) {
-	bsons := make([]bson.M, 0)
-	if b.Vars != nil || len(b.Vars) != 0 {
-		bsons = append(bsons, bson.M{"$match": b.Vars})
-	}
-	bsons = append(bsons, bson.M{
-		"$group": b.Agg,
-	}, bson.M{
-		"$project": bson.M{"_id": 0},
-	})
-	fmt.Println(bsons)
-	cursor, err := d.C.Aggregate(ctx, bsons, nil)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]clause.Data, 0)
-	err = cursor.All(ctx, &result)
-	return result, err
-}
-
-func sort(array ...string) bson.D {
-	sort := make(bson.D, 0, len(array))
-	for _, elem := range array {
-		if strings.HasPrefix(elem, "-") {
-			sort = append(sort, bson.E{Key: elem[1:], Value: -1})
-			continue
-		}
-		sort = append(sort, bson.E{Key: elem, Value: 1})
-	}
-	return sort
+func (d *Dorm) Delete(ctx context.Context) (int64, error) {
+	result, err := d.C.DeleteMany(ctx, d.builder.Vars)
+	return result.DeletedCount, err
 }
 
 // MONGO mongo
 type MONGO struct {
 	Vars bson.M
 	Agg  bson.M
-}
-
-func NewBuilder() clause.Builder {
-	return &MONGO{}
 }
 
 // WriteString write string

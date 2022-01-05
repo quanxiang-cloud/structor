@@ -25,7 +25,7 @@ func (sum *Sum) Build(builder clause.Builder) {
 
 // Avg Avg
 type Avg struct {
-	clause.Sum
+	clause.Avg
 }
 
 func avg() clause.Expression {
@@ -41,7 +41,7 @@ func (avg *Avg) Build(builder clause.Builder) {
 
 // Min Min
 type Min struct {
-	clause.Sum
+	clause.Min
 }
 
 func min() clause.Expression {
@@ -57,7 +57,7 @@ func (min *Min) Build(builder clause.Builder) {
 
 // Max Max
 type Max struct {
-	clause.Sum
+	clause.Max
 }
 
 func max() clause.Expression {
