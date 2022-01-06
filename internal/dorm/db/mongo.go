@@ -30,14 +30,14 @@ var (
 )
 
 func init() {
-	flag.StringVar(&host, "host", "127.0.0.1:27017", "Mongo host. default 127.0.0.1:27017")
-	flag.BoolVar(&direct, "direct", true, "Direct connections cannot be made if multiple hosts are specified or an SRV URI is used.")
-	flag.StringVar(&authMechanism, "auth-mechanism", "SCRAM-SHA-1", `The mechanism to use for authentication. Supported values include "SCRAM-SHA-256", "SCRAM-SHA-1", "MONGODB-CR", "PLAIN", "GSSAPI", "MONGODB-X509", and "MONGODB-AWS". This can also be set through the "authMechanism" URI option.`)
-	flag.StringVar(&authSource, "auth-source", "admin", `The name of the database to use for authentication. This defaults to "$external" for MONGODB-X509, GSSAPI, and PLAIN and "admin" for all other mechanisms. This can also be set through the "authSource" URI option.`)
-	flag.StringVar(&username, "username", "", "The username for authentication. This can also be set through the URI as a username:password pair before the first @ character.")
-	flag.StringVar(&password, "password", "", "The password for authentication. This must not be specified for X509 and is optional for GSSAPI authentication.")
-	flag.BoolVar(&passwordSet, "password-set", false, "For GSSAPI, this must be true if a password is specified, even if the password is the empty string, and false if no password is specified, indicating that the password should be taken from the context of the running process.")
-	flag.StringVar(&database, "database", "", "Database name.")
+	flag.StringVar(&host, "mongo-host", "127.0.0.1:27017", "Mongo host. default 127.0.0.1:27017")
+	flag.BoolVar(&direct, "mongo-direct", true, "Direct connections cannot be made if multiple hosts are specified or an SRV URI is used.")
+	flag.StringVar(&authMechanism, "mongo-auth-mechanism", "SCRAM-SHA-1", `The mechanism to use for authentication. Supported values include "SCRAM-SHA-256", "SCRAM-SHA-1", "MONGODB-CR", "PLAIN", "GSSAPI", "MONGODB-X509", and "MONGODB-AWS". This can also be set through the "authMechanism" URI option.`)
+	flag.StringVar(&authSource, "mongo-auth-source", "admin", `The name of the database to use for authentication. This defaults to "$external" for MONGODB-X509, GSSAPI, and PLAIN and "admin" for all other mechanisms. This can also be set through the "authSource" URI option.`)
+	flag.StringVar(&username, "mongo-username", "", "The username for authentication. This can also be set through the URI as a username:password pair before the first @ character.")
+	flag.StringVar(&password, "mongo-password", "", "The password for authentication. This must not be specified for X509 and is optional for GSSAPI authentication.")
+	flag.BoolVar(&passwordSet, "mongo-password-set", false, "For GSSAPI, this must be true if a password is specified, even if the password is the empty string, and false if no password is specified, indicating that the password should be taken from the context of the running process.")
+	flag.StringVar(&database, "mongo-database", "", "Database name.")
 
 	// expressions
 	clause.SetExpressions(map[string]clause.Expr{
@@ -109,12 +109,16 @@ func (d *Dorm) Where(expr clause.Expression) *Dorm {
 	expr.Build(d.builder)
 	return d
 }
-func (d *Dorm) Select(expr clause.Expression) *Dorm {
-	expr.Build(d.builder)
+func (d *Dorm) Select(exprs ...clause.Expression) *Dorm {
 	bsons := make([]bson.M, 0)
 	if vars := d.builder.Vars; len(vars) != 0 {
 		bsons = append(bsons, bson.M{"$match": vars})
 	}
+
+	for _, expr := range exprs {
+		expr.Build(d.builder)
+	}
+
 	bsons = append(bsons, bson.M{
 		"$group": d.builder.Agg,
 	}, bson.M{
@@ -144,13 +148,13 @@ func (d *Dorm) Order(arr ...string) *Dorm {
 	return d
 }
 
-func (d *Dorm) find(ctx context.Context) ([]clause.Data, error) {
+func (d *Dorm) find(ctx context.Context) ([]map[string]interface{}, error) {
 	cursor, err := d.C.Find(ctx, d.builder.Vars, d.opt)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]clause.Data, 0)
+	result := make([]map[string]interface{}, 0)
 	err = cursor.All(ctx, &result)
 	if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
 		return nil, nil
@@ -159,7 +163,7 @@ func (d *Dorm) find(ctx context.Context) ([]clause.Data, error) {
 	return result, err
 }
 
-func (d *Dorm) agg(ctx context.Context) ([]clause.Data, error) {
+func (d *Dorm) agg(ctx context.Context) ([]map[string]interface{}, error) {
 	bsons := make([]bson.M, 0)
 	if vars := d.builder.Vars; len(vars) != 0 {
 		bsons = append(bsons, bson.M{"$match": vars})
@@ -174,7 +178,7 @@ func (d *Dorm) agg(ctx context.Context) ([]clause.Data, error) {
 	if err != nil {
 		return nil, err
 	}
-	result := make([]clause.Data, 0)
+	result := make([]map[string]interface{}, 0)
 	err = cursor.All(ctx, &result)
 
 	if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
@@ -184,10 +188,10 @@ func (d *Dorm) agg(ctx context.Context) ([]clause.Data, error) {
 	return result, err
 }
 
-func (d *Dorm) FindOne(ctx context.Context) (clause.Data, error) {
+func (d *Dorm) FindOne(ctx context.Context) (map[string]interface{}, error) {
 	singleResult := d.C.FindOne(ctx, d.builder.Vars)
 
-	var result = make(clause.Data)
+	var result = make(map[string]interface{})
 	err := singleResult.Decode(&result)
 	if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
 		return nil, nil
@@ -195,7 +199,7 @@ func (d *Dorm) FindOne(ctx context.Context) (clause.Data, error) {
 	return result, err
 }
 
-func (d *Dorm) Find(ctx context.Context) ([]clause.Data, error) {
+func (d *Dorm) Find(ctx context.Context) ([]map[string]interface{}, error) {
 	// FIXME Should configure `group by` syntax implementation
 	if len(d.builder.Agg) != 0 {
 		return d.agg(ctx)

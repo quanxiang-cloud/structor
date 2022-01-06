@@ -9,7 +9,7 @@ var (
 
 // PageData entities of table
 type PageData struct {
-	Value []Data
+	Value []map[string]interface{}
 	Total int64
 }
 
@@ -19,6 +19,3 @@ type FindOptions struct {
 	Size int64
 	Sort []string
 }
-
-// Data dest of table
-type Data map[string]interface{}

@@ -1,0 +1,17 @@
+syntax = "proto3";
+package proto;
+
+import "google/protobuf/any.proto";
+
+message FindOneReq{
+    string tableName = 1;
+    google.protobuf.Any dsl = 2;
+}
+
+message FindOneResp{
+    google.protobuf.Any data = 1;
+}
+
+service DSLService{
+    rpc FindOne(FindOneReq)returns(FindOneResp);
+}

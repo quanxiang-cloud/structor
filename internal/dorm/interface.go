@@ -10,12 +10,12 @@ import (
 type Dorm interface {
 	Table(tablename string) Dorm
 	Where(expr clause.Expression) Dorm
-	Select(expr clause.Expression) Dorm
+	Select(expr ...clause.Expression) Dorm
 	Limit(limit int64) Dorm
 	Offset(offset int64) Dorm
 	Order(order ...string) Dorm
-	FindOne(ctx context.Context) (clause.Data, error)
-	Find(ctx context.Context) ([]clause.Data, error)
+	FindOne(ctx context.Context) (map[string]interface{}, error)
+	Find(ctx context.Context) ([]map[string]interface{}, error)
 	Count(ctx context.Context) (int64, error)
 	Insert(ctx context.Context, entirties ...interface{}) error
 	Update(ctx context.Context, entity interface{}) (int64, error)
