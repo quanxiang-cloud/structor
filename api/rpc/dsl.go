@@ -38,7 +38,6 @@ func (s *service) FindOne(ctx context.Context, req *pb.FindOneReq) (*pb.FindOneR
 		TableName: req.TableName,
 		DSL:       dsl,
 	})
-
 	if err != nil {
 		return &pb.FindOneResp{}, err
 	}
@@ -52,6 +51,69 @@ func (s *service) FindOne(ctx context.Context, req *pb.FindOneReq) (*pb.FindOneR
 	resp.Data = &anypb.Any{}
 	err = resp.Data.MarshalFrom(out)
 	return resp, err
+}
+
+func (s *service) Find(ctx context.Context, req *pb.FindReq) (*pb.FindResp, error) {
+	dsl, err := anyToDSL(req.GetDsl())
+	if err != nil {
+		return &pb.FindResp{}, err
+	}
+
+	result, err := s.dsl.Find(ctx, &dslservice.FindReq{
+		TableName: req.TableName,
+		DSL:       dsl,
+		Page:      req.Page,
+		Size:      req.Size,
+		Sort:      req.Sort,
+	})
+	if err != nil {
+		return &pb.FindResp{}, err
+	}
+
+	out, err := structpb.NewValue(result.Data)
+	if err != nil {
+		return &pb.FindResp{}, err
+	}
+
+	resp := &pb.FindResp{}
+	resp.Data = &anypb.Any{}
+	err = resp.Data.MarshalFrom(out)
+	return resp, err
+}
+
+func (s *service) Count(ctx context.Context, req *pb.CountReq) (*pb.CountResp, error) {
+	dsl, err := anyToDSL(req.GetDsl())
+	if err != nil {
+		return &pb.CountResp{}, err
+	}
+
+	result, err := s.dsl.Count(ctx, &dslservice.CountReq{
+		TableName: req.TableName,
+		DSL:       dsl,
+	})
+	if err != nil {
+		return &pb.CountResp{}, err
+	}
+
+	resp := &pb.CountResp{}
+	resp.Data = result.Data
+	return resp, nil
+}
+
+func (s *service) Insert(ctx context.Context, req *pb.InsertReq) (*pb.InsertResp, error) {
+	entirties, err := anyToEntirties(req.GetEntirties())
+	if err != nil {
+		return &pb.InsertResp{}, err
+	}
+	_, err = s.dsl.Insert(ctx, &dslservice.InsertReq{
+		TableName: req.TableName,
+		Entirties: entirties,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.InsertResp{}, nil
 }
 
 func anyToDSL(any *anypb.Any) (dslservice.DSL, error) {
@@ -73,4 +135,25 @@ func anyToDSL(any *anypb.Any) (dslservice.DSL, error) {
 	}
 
 	return dsl, nil
+}
+
+func anyToEntirties(any *anypb.Any) ([]interface{}, error) {
+	out := structpb.NewNullValue()
+	err := any.UnmarshalTo(out)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := out.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+
+	var value []interface{}
+	err = json.Unmarshal(body, &value)
+	if err != nil {
+		return nil, err
+	}
+
+	return value, nil
 }

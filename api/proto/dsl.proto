@@ -12,6 +12,37 @@ message FindOneResp{
     google.protobuf.Any data = 1;
 }
 
+message FindReq{
+    string tableName = 1;
+    int64 page = 2;
+    int64 size = 3;
+    repeated string sort = 4;
+    google.protobuf.Any dsl = 5;
+}
+
+message FindResp{
+    google.protobuf.Any data = 1;
+}
+
+message CountReq{
+    string tableName = 1;
+    google.protobuf.Any dsl = 2;
+}
+
+message CountResp{
+    int64 data = 1;
+}
+
+message InsertReq{
+    string tableName = 1;
+    google.protobuf.Any entirties = 2;
+}
+
+message InsertResp{}
+
 service DSLService{
     rpc FindOne(FindOneReq)returns(FindOneResp);
+    rpc Find(FindReq)returns(FindResp);
+    rpc Count(CountReq)returns(CountResp);
+    rpc Insert(InsertReq)returns(InsertResp);
 }

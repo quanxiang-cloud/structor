@@ -10,6 +10,9 @@ import (
 
 type DSLService interface {
 	FindOne(ctx context.Context, req *FindOneReq) (*FindOneResp, error)
+	Find(ctx context.Context, req *FindReq) (*FindResp, error)
+	Count(ctx context.Context, req *CountReq) (*CountResp, error)
+	Insert(ctx context.Context, req *InsertReq) (*InsertResp, error)
 }
 
 type dsl struct {
@@ -69,6 +72,98 @@ func (d *dsl) FindOne(ctx context.Context, req *FindOneReq) (*FindOneResp, error
 	return &FindOneResp{
 		Data: data,
 	}, nil
+}
+
+type FindReq struct {
+	TableName string
+	Page      int64
+	Size      int64
+	Sort      []string
+	DSL       DSL
+}
+
+type FindResp struct {
+	Data interface{}
+}
+
+func (d *dsl) Find(ctx context.Context, req *FindReq) (*FindResp, error) {
+	where, aggs, err := d.convert(req.DSL)
+	if err != nil {
+		return &FindResp{}, err
+	}
+
+	ql := d.db.Table(req.TableName)
+	if where != nil {
+		ql = ql.Where(where)
+	}
+
+	if aggs != nil {
+		ql = ql.Select(aggs...)
+	}
+
+	ql = ql.Offset((req.Page - 1) * req.Size).Limit(req.Size)
+	ql = ql.Order(req.Sort...)
+
+	data, err := ql.Find(ctx)
+	if err != nil {
+		return &FindResp{}, err
+	}
+
+	return &FindResp{
+		Data: data,
+	}, nil
+}
+
+type CountReq struct {
+	TableName string
+	DSL       DSL
+}
+
+type CountResp struct {
+	Data int64
+}
+
+func (d *dsl) Count(ctx context.Context, req *CountReq) (*CountResp, error) {
+	where, aggs, err := d.convert(req.DSL)
+	if err != nil {
+		return &CountResp{}, err
+	}
+
+	ql := d.db.Table(req.TableName)
+	if where != nil {
+		ql = ql.Where(where)
+	}
+
+	if aggs != nil {
+		ql = ql.Select(aggs...)
+	}
+
+	data, err := ql.Count(ctx)
+	if err != nil {
+		return &CountResp{}, err
+	}
+
+	return &CountResp{
+		Data: data,
+	}, nil
+}
+
+type InsertReq struct {
+	TableName string
+	Entirties []interface{}
+}
+
+type InsertResp struct{}
+
+func (d *dsl) Insert(ctx context.Context, req *InsertReq) (*InsertResp, error) {
+	ql := d.db.Table(req.TableName)
+
+	err := ql.Insert(ctx, req.Entirties...)
+	if err != nil {
+		return &InsertResp{}, err
+	}
+
+	return &InsertResp{}, nil
 }
 
 func (d *dsl) convert(dsl DSL) (where clause.Expression, aggs []clause.Expression, err error) {
