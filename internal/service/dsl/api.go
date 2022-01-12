@@ -10,6 +10,11 @@ import (
 
 type DSLService interface {
 	FindOne(ctx context.Context, req *FindOneReq) (*FindOneResp, error)
+	Find(ctx context.Context, req *FindReq) (*FindResp, error)
+	Count(ctx context.Context, req *CountReq) (*CountResp, error)
+	Insert(ctx context.Context, req *InsertReq) (*InsertResp, error)
+	Update(ctx context.Context, req *UpdateReq) (*UpdateResp, error)
+	Delete(ctx context.Context, req *DeleteReq) (*DeleteResp, error)
 }
 
 type dsl struct {
@@ -68,6 +73,160 @@ func (d *dsl) FindOne(ctx context.Context, req *FindOneReq) (*FindOneResp, error
 
 	return &FindOneResp{
 		Data: data,
+	}, nil
+}
+
+type FindReq struct {
+	TableName string
+	Page      int64
+	Size      int64
+	Sort      []string
+	DSL       DSL
+}
+
+type FindResp struct {
+	Data []interface{}
+}
+
+func (d *dsl) Find(ctx context.Context, req *FindReq) (*FindResp, error) {
+	where, aggs, err := d.convert(req.DSL)
+	if err != nil {
+		return &FindResp{}, err
+	}
+
+	ql := d.db.Table(req.TableName)
+	if where != nil {
+		ql = ql.Where(where)
+	}
+
+	if aggs != nil {
+		ql = ql.Select(aggs...)
+	}
+
+	ql = ql.Offset((req.Page - 1) * req.Size).Limit(req.Size)
+	ql = ql.Order(req.Sort...)
+
+	data, err := ql.Find(ctx)
+	if err != nil {
+		return &FindResp{}, err
+	}
+
+	dl := make([]interface{}, 0, len(data))
+	for _, v := range data {
+		dl = append(dl, v)
+	}
+
+	return &FindResp{
+		Data: dl,
+	}, nil
+}
+
+type CountReq struct {
+	TableName string
+	DSL       DSL
+}
+
+type CountResp struct {
+	Data int64
+}
+
+func (d *dsl) Count(ctx context.Context, req *CountReq) (*CountResp, error) {
+	where, aggs, err := d.convert(req.DSL)
+	if err != nil {
+		return &CountResp{}, err
+	}
+
+	ql := d.db.Table(req.TableName)
+	if where != nil {
+		ql = ql.Where(where)
+	}
+
+	if aggs != nil {
+		ql = ql.Select(aggs...)
+	}
+
+	data, err := ql.Count(ctx)
+	if err != nil {
+		return &CountResp{}, err
+	}
+
+	return &CountResp{
+		Data: data,
+	}, nil
+}
+
+type UpdateReq struct {
+	TableName string
+	DSL       DSL
+	Entity    interface{}
+}
+
+type UpdateResp struct {
+	Count int64
+}
+
+func (d *dsl) Update(ctx context.Context, req *UpdateReq) (*UpdateResp, error) {
+	where, _, err := d.convert(req.DSL)
+	if err != nil {
+		return &UpdateResp{}, err
+	}
+
+	ql := d.db.Table(req.TableName)
+	if where != nil {
+		ql = ql.Where(where)
+	}
+
+	count, err := ql.Update(ctx, req.Entity)
+	return &UpdateResp{
+		Count: count,
+	}, err
+}
+
+type InsertReq struct {
+	TableName string
+	Entirties []interface{}
+}
+
+type InsertResp struct{}
+
+func (d *dsl) Insert(ctx context.Context, req *InsertReq) (*InsertResp, error) {
+	ql := d.db.Table(req.TableName)
+
+	err := ql.Insert(ctx, req.Entirties...)
+	if err != nil {
+		return &InsertResp{}, err
+	}
+
+	return &InsertResp{}, nil
+}
+
+type DeleteReq struct {
+	TableName string
+	DSL       DSL
+}
+
+type DeleteResp struct {
+	Count int64
+}
+
+func (d *dsl) Delete(ctx context.Context, req *DeleteReq) (*DeleteResp, error) {
+	where, _, err := d.convert(req.DSL)
+	if err != nil {
+		return &DeleteResp{}, err
+	}
+
+	ql := d.db.Table(req.TableName)
+	if where != nil {
+		ql = ql.Where(where)
+	}
+
+	count, err := ql.Delete(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &DeleteResp{
+		Count: count,
 	}, nil
 }
 

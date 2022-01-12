@@ -111,27 +111,506 @@ func (m *FindOneResp) GetData() *anypb.Any {
 	return nil
 }
 
+type FindReq struct {
+	TableName            string     `protobuf:"bytes,1,opt,name=tableName,proto3" json:"tableName,omitempty"`
+	Page                 int64      `protobuf:"varint,2,opt,name=page,proto3" json:"page,omitempty"`
+	Size                 int64      `protobuf:"varint,3,opt,name=size,proto3" json:"size,omitempty"`
+	Sort                 []string   `protobuf:"bytes,4,rep,name=sort,proto3" json:"sort,omitempty"`
+	Dsl                  *anypb.Any `protobuf:"bytes,5,opt,name=dsl,proto3" json:"dsl,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
+}
+
+func (m *FindReq) Reset()         { *m = FindReq{} }
+func (m *FindReq) String() string { return proto.CompactTextString(m) }
+func (*FindReq) ProtoMessage()    {}
+func (*FindReq) Descriptor() ([]byte, []int) {
+	return fileDescriptor_279353885e3c64ca, []int{2}
+}
+
+func (m *FindReq) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_FindReq.Unmarshal(m, b)
+}
+func (m *FindReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_FindReq.Marshal(b, m, deterministic)
+}
+func (m *FindReq) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FindReq.Merge(m, src)
+}
+func (m *FindReq) XXX_Size() int {
+	return xxx_messageInfo_FindReq.Size(m)
+}
+func (m *FindReq) XXX_DiscardUnknown() {
+	xxx_messageInfo_FindReq.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FindReq proto.InternalMessageInfo
+
+func (m *FindReq) GetTableName() string {
+	if m != nil {
+		return m.TableName
+	}
+	return ""
+}
+
+func (m *FindReq) GetPage() int64 {
+	if m != nil {
+		return m.Page
+	}
+	return 0
+}
+
+func (m *FindReq) GetSize() int64 {
+	if m != nil {
+		return m.Size
+	}
+	return 0
+}
+
+func (m *FindReq) GetSort() []string {
+	if m != nil {
+		return m.Sort
+	}
+	return nil
+}
+
+func (m *FindReq) GetDsl() *anypb.Any {
+	if m != nil {
+		return m.Dsl
+	}
+	return nil
+}
+
+type FindResp struct {
+	Data                 *anypb.Any `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
+}
+
+func (m *FindResp) Reset()         { *m = FindResp{} }
+func (m *FindResp) String() string { return proto.CompactTextString(m) }
+func (*FindResp) ProtoMessage()    {}
+func (*FindResp) Descriptor() ([]byte, []int) {
+	return fileDescriptor_279353885e3c64ca, []int{3}
+}
+
+func (m *FindResp) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_FindResp.Unmarshal(m, b)
+}
+func (m *FindResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_FindResp.Marshal(b, m, deterministic)
+}
+func (m *FindResp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FindResp.Merge(m, src)
+}
+func (m *FindResp) XXX_Size() int {
+	return xxx_messageInfo_FindResp.Size(m)
+}
+func (m *FindResp) XXX_DiscardUnknown() {
+	xxx_messageInfo_FindResp.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FindResp proto.InternalMessageInfo
+
+func (m *FindResp) GetData() *anypb.Any {
+	if m != nil {
+		return m.Data
+	}
+	return nil
+}
+
+type CountReq struct {
+	TableName            string     `protobuf:"bytes,1,opt,name=tableName,proto3" json:"tableName,omitempty"`
+	Dsl                  *anypb.Any `protobuf:"bytes,2,opt,name=dsl,proto3" json:"dsl,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
+}
+
+func (m *CountReq) Reset()         { *m = CountReq{} }
+func (m *CountReq) String() string { return proto.CompactTextString(m) }
+func (*CountReq) ProtoMessage()    {}
+func (*CountReq) Descriptor() ([]byte, []int) {
+	return fileDescriptor_279353885e3c64ca, []int{4}
+}
+
+func (m *CountReq) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CountReq.Unmarshal(m, b)
+}
+func (m *CountReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CountReq.Marshal(b, m, deterministic)
+}
+func (m *CountReq) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CountReq.Merge(m, src)
+}
+func (m *CountReq) XXX_Size() int {
+	return xxx_messageInfo_CountReq.Size(m)
+}
+func (m *CountReq) XXX_DiscardUnknown() {
+	xxx_messageInfo_CountReq.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CountReq proto.InternalMessageInfo
+
+func (m *CountReq) GetTableName() string {
+	if m != nil {
+		return m.TableName
+	}
+	return ""
+}
+
+func (m *CountReq) GetDsl() *anypb.Any {
+	if m != nil {
+		return m.Dsl
+	}
+	return nil
+}
+
+type CountResp struct {
+	Data                 int64    `protobuf:"varint,1,opt,name=data,proto3" json:"data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CountResp) Reset()         { *m = CountResp{} }
+func (m *CountResp) String() string { return proto.CompactTextString(m) }
+func (*CountResp) ProtoMessage()    {}
+func (*CountResp) Descriptor() ([]byte, []int) {
+	return fileDescriptor_279353885e3c64ca, []int{5}
+}
+
+func (m *CountResp) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CountResp.Unmarshal(m, b)
+}
+func (m *CountResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CountResp.Marshal(b, m, deterministic)
+}
+func (m *CountResp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CountResp.Merge(m, src)
+}
+func (m *CountResp) XXX_Size() int {
+	return xxx_messageInfo_CountResp.Size(m)
+}
+func (m *CountResp) XXX_DiscardUnknown() {
+	xxx_messageInfo_CountResp.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CountResp proto.InternalMessageInfo
+
+func (m *CountResp) GetData() int64 {
+	if m != nil {
+		return m.Data
+	}
+	return 0
+}
+
+type InsertReq struct {
+	TableName            string     `protobuf:"bytes,1,opt,name=tableName,proto3" json:"tableName,omitempty"`
+	Entities             *anypb.Any `protobuf:"bytes,2,opt,name=Entities,proto3" json:"Entities,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
+}
+
+func (m *InsertReq) Reset()         { *m = InsertReq{} }
+func (m *InsertReq) String() string { return proto.CompactTextString(m) }
+func (*InsertReq) ProtoMessage()    {}
+func (*InsertReq) Descriptor() ([]byte, []int) {
+	return fileDescriptor_279353885e3c64ca, []int{6}
+}
+
+func (m *InsertReq) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_InsertReq.Unmarshal(m, b)
+}
+func (m *InsertReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_InsertReq.Marshal(b, m, deterministic)
+}
+func (m *InsertReq) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InsertReq.Merge(m, src)
+}
+func (m *InsertReq) XXX_Size() int {
+	return xxx_messageInfo_InsertReq.Size(m)
+}
+func (m *InsertReq) XXX_DiscardUnknown() {
+	xxx_messageInfo_InsertReq.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InsertReq proto.InternalMessageInfo
+
+func (m *InsertReq) GetTableName() string {
+	if m != nil {
+		return m.TableName
+	}
+	return ""
+}
+
+func (m *InsertReq) GetEntities() *anypb.Any {
+	if m != nil {
+		return m.Entities
+	}
+	return nil
+}
+
+type InsertResp struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *InsertResp) Reset()         { *m = InsertResp{} }
+func (m *InsertResp) String() string { return proto.CompactTextString(m) }
+func (*InsertResp) ProtoMessage()    {}
+func (*InsertResp) Descriptor() ([]byte, []int) {
+	return fileDescriptor_279353885e3c64ca, []int{7}
+}
+
+func (m *InsertResp) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_InsertResp.Unmarshal(m, b)
+}
+func (m *InsertResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_InsertResp.Marshal(b, m, deterministic)
+}
+func (m *InsertResp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InsertResp.Merge(m, src)
+}
+func (m *InsertResp) XXX_Size() int {
+	return xxx_messageInfo_InsertResp.Size(m)
+}
+func (m *InsertResp) XXX_DiscardUnknown() {
+	xxx_messageInfo_InsertResp.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InsertResp proto.InternalMessageInfo
+
+type UpdateReq struct {
+	TableName            string     `protobuf:"bytes,1,opt,name=tableName,proto3" json:"tableName,omitempty"`
+	Dsl                  *anypb.Any `protobuf:"bytes,2,opt,name=dsl,proto3" json:"dsl,omitempty"`
+	Entity               *anypb.Any `protobuf:"bytes,3,opt,name=entity,proto3" json:"entity,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
+}
+
+func (m *UpdateReq) Reset()         { *m = UpdateReq{} }
+func (m *UpdateReq) String() string { return proto.CompactTextString(m) }
+func (*UpdateReq) ProtoMessage()    {}
+func (*UpdateReq) Descriptor() ([]byte, []int) {
+	return fileDescriptor_279353885e3c64ca, []int{8}
+}
+
+func (m *UpdateReq) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateReq.Unmarshal(m, b)
+}
+func (m *UpdateReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateReq.Marshal(b, m, deterministic)
+}
+func (m *UpdateReq) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateReq.Merge(m, src)
+}
+func (m *UpdateReq) XXX_Size() int {
+	return xxx_messageInfo_UpdateReq.Size(m)
+}
+func (m *UpdateReq) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateReq.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UpdateReq proto.InternalMessageInfo
+
+func (m *UpdateReq) GetTableName() string {
+	if m != nil {
+		return m.TableName
+	}
+	return ""
+}
+
+func (m *UpdateReq) GetDsl() *anypb.Any {
+	if m != nil {
+		return m.Dsl
+	}
+	return nil
+}
+
+func (m *UpdateReq) GetEntity() *anypb.Any {
+	if m != nil {
+		return m.Entity
+	}
+	return nil
+}
+
+type UpdateResp struct {
+	Count                int64    `protobuf:"zigzag64,1,opt,name=count,proto3" json:"count,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UpdateResp) Reset()         { *m = UpdateResp{} }
+func (m *UpdateResp) String() string { return proto.CompactTextString(m) }
+func (*UpdateResp) ProtoMessage()    {}
+func (*UpdateResp) Descriptor() ([]byte, []int) {
+	return fileDescriptor_279353885e3c64ca, []int{9}
+}
+
+func (m *UpdateResp) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateResp.Unmarshal(m, b)
+}
+func (m *UpdateResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateResp.Marshal(b, m, deterministic)
+}
+func (m *UpdateResp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateResp.Merge(m, src)
+}
+func (m *UpdateResp) XXX_Size() int {
+	return xxx_messageInfo_UpdateResp.Size(m)
+}
+func (m *UpdateResp) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateResp.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UpdateResp proto.InternalMessageInfo
+
+func (m *UpdateResp) GetCount() int64 {
+	if m != nil {
+		return m.Count
+	}
+	return 0
+}
+
+type DeleteReq struct {
+	TableName            string     `protobuf:"bytes,1,opt,name=tableName,proto3" json:"tableName,omitempty"`
+	Dsl                  *anypb.Any `protobuf:"bytes,2,opt,name=dsl,proto3" json:"dsl,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
+}
+
+func (m *DeleteReq) Reset()         { *m = DeleteReq{} }
+func (m *DeleteReq) String() string { return proto.CompactTextString(m) }
+func (*DeleteReq) ProtoMessage()    {}
+func (*DeleteReq) Descriptor() ([]byte, []int) {
+	return fileDescriptor_279353885e3c64ca, []int{10}
+}
+
+func (m *DeleteReq) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteReq.Unmarshal(m, b)
+}
+func (m *DeleteReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteReq.Marshal(b, m, deterministic)
+}
+func (m *DeleteReq) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteReq.Merge(m, src)
+}
+func (m *DeleteReq) XXX_Size() int {
+	return xxx_messageInfo_DeleteReq.Size(m)
+}
+func (m *DeleteReq) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteReq.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteReq proto.InternalMessageInfo
+
+func (m *DeleteReq) GetTableName() string {
+	if m != nil {
+		return m.TableName
+	}
+	return ""
+}
+
+func (m *DeleteReq) GetDsl() *anypb.Any {
+	if m != nil {
+		return m.Dsl
+	}
+	return nil
+}
+
+type DeleteResp struct {
+	Count                int64    `protobuf:"zigzag64,1,opt,name=count,proto3" json:"count,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteResp) Reset()         { *m = DeleteResp{} }
+func (m *DeleteResp) String() string { return proto.CompactTextString(m) }
+func (*DeleteResp) ProtoMessage()    {}
+func (*DeleteResp) Descriptor() ([]byte, []int) {
+	return fileDescriptor_279353885e3c64ca, []int{11}
+}
+
+func (m *DeleteResp) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteResp.Unmarshal(m, b)
+}
+func (m *DeleteResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteResp.Marshal(b, m, deterministic)
+}
+func (m *DeleteResp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteResp.Merge(m, src)
+}
+func (m *DeleteResp) XXX_Size() int {
+	return xxx_messageInfo_DeleteResp.Size(m)
+}
+func (m *DeleteResp) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteResp.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteResp proto.InternalMessageInfo
+
+func (m *DeleteResp) GetCount() int64 {
+	if m != nil {
+		return m.Count
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*FindOneReq)(nil), "proto.FindOneReq")
 	proto.RegisterType((*FindOneResp)(nil), "proto.FindOneResp")
+	proto.RegisterType((*FindReq)(nil), "proto.FindReq")
+	proto.RegisterType((*FindResp)(nil), "proto.FindResp")
+	proto.RegisterType((*CountReq)(nil), "proto.CountReq")
+	proto.RegisterType((*CountResp)(nil), "proto.CountResp")
+	proto.RegisterType((*InsertReq)(nil), "proto.InsertReq")
+	proto.RegisterType((*InsertResp)(nil), "proto.InsertResp")
+	proto.RegisterType((*UpdateReq)(nil), "proto.UpdateReq")
+	proto.RegisterType((*UpdateResp)(nil), "proto.UpdateResp")
+	proto.RegisterType((*DeleteReq)(nil), "proto.DeleteReq")
+	proto.RegisterType((*DeleteResp)(nil), "proto.DeleteResp")
 }
 
 func init() { proto.RegisterFile("api/proto/dsl.proto", fileDescriptor_279353885e3c64ca) }
 
 var fileDescriptor_279353885e3c64ca = []byte{
-	// 189 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x4e, 0x2c, 0xc8, 0xd4,
-	0x2f, 0x28, 0xca, 0x2f, 0xc9, 0xd7, 0x4f, 0x29, 0xce, 0xd1, 0x03, 0xb3, 0x84, 0x58, 0xc1, 0x94,
-	0x94, 0x64, 0x7a, 0x7e, 0x7e, 0x7a, 0x4e, 0x2a, 0x44, 0x3a, 0xa9, 0x34, 0x4d, 0x3f, 0x31, 0xaf,
-	0x12, 0xa2, 0x42, 0x29, 0x88, 0x8b, 0xcb, 0x2d, 0x33, 0x2f, 0xc5, 0x3f, 0x2f, 0x35, 0x28, 0xb5,
-	0x50, 0x48, 0x86, 0x8b, 0xb3, 0x24, 0x31, 0x29, 0x27, 0xd5, 0x2f, 0x31, 0x37, 0x55, 0x82, 0x51,
-	0x81, 0x51, 0x83, 0x33, 0x08, 0x21, 0x20, 0xa4, 0xc6, 0xc5, 0x9c, 0x52, 0x9c, 0x23, 0xc1, 0xa4,
-	0xc0, 0xa8, 0xc1, 0x6d, 0x24, 0xa2, 0x07, 0x31, 0x54, 0x0f, 0x66, 0xa8, 0x9e, 0x63, 0x5e, 0x65,
-	0x10, 0x48, 0x81, 0x92, 0x39, 0x17, 0x37, 0xdc, 0xcc, 0xe2, 0x02, 0x21, 0x0d, 0x2e, 0x96, 0x94,
-	0xc4, 0x92, 0x44, 0xb0, 0x79, 0xb8, 0xf4, 0x81, 0x55, 0x18, 0xd9, 0x71, 0x71, 0xb9, 0x04, 0xfb,
-	0x04, 0xa7, 0x16, 0x95, 0x65, 0x26, 0xa7, 0x0a, 0x19, 0x70, 0xb1, 0x43, 0x8d, 0x11, 0x12, 0x84,
-	0xa8, 0xd6, 0x43, 0x38, 0x55, 0x4a, 0x08, 0x5d, 0xa8, 0xb8, 0x20, 0x89, 0x0d, 0x2c, 0x64, 0x0c,
-	0x08, 0x00, 0x00, 0xff, 0xff, 0xab, 0x4e, 0xe0, 0xaf, 0x0c, 0x01, 0x00, 0x00,
+	// 431 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x53, 0x5d, 0xab, 0xd3, 0x40,
+	0x10, 0x25, 0x37, 0x1f, 0xb7, 0x99, 0x2b, 0xea, 0x1d, 0xfb, 0x10, 0x83, 0x60, 0xd9, 0x07, 0x0d,
+	0x62, 0x53, 0xa9, 0x82, 0xcf, 0x62, 0x15, 0x04, 0xf1, 0x23, 0xc5, 0x27, 0x9f, 0xb6, 0xcd, 0x5a,
+	0x02, 0x31, 0x59, 0xb3, 0x5b, 0xa1, 0xbe, 0xf8, 0x03, 0xfc, 0x13, 0xfe, 0x54, 0xd9, 0xdd, 0xec,
+	0xf6, 0x03, 0x6a, 0x15, 0xfa, 0x94, 0xdd, 0x33, 0x27, 0x67, 0x66, 0xce, 0xcc, 0xc2, 0x1d, 0xca,
+	0xab, 0x09, 0xef, 0x5a, 0xd9, 0x4e, 0x4a, 0x51, 0xe7, 0xfa, 0x84, 0xa1, 0xfe, 0xa4, 0x77, 0x57,
+	0x6d, 0xbb, 0xaa, 0x99, 0x09, 0x2f, 0xd6, 0x5f, 0x26, 0xb4, 0xd9, 0x18, 0x06, 0x29, 0x00, 0x5e,
+	0x57, 0x4d, 0xf9, 0xbe, 0x61, 0x05, 0xfb, 0x86, 0xf7, 0x20, 0x96, 0x74, 0x51, 0xb3, 0x77, 0xf4,
+	0x2b, 0x4b, 0xbc, 0x91, 0x97, 0xc5, 0xc5, 0x16, 0xc0, 0x07, 0xe0, 0x97, 0xa2, 0x4e, 0x2e, 0x46,
+	0x5e, 0x76, 0x35, 0x1d, 0xe6, 0x46, 0x34, 0xb7, 0xa2, 0xf9, 0x8b, 0x66, 0x53, 0x28, 0x02, 0x79,
+	0x0e, 0x57, 0x4e, 0x53, 0x70, 0xcc, 0x20, 0x28, 0xa9, 0xa4, 0x5a, 0xef, 0xd8, 0x7f, 0x9a, 0x41,
+	0x7e, 0x79, 0x70, 0xa9, 0xfe, 0x3c, 0x5d, 0x0a, 0x42, 0xc0, 0xe9, 0x8a, 0xe9, 0x5a, 0xfc, 0x42,
+	0x9f, 0x15, 0x26, 0xaa, 0x1f, 0x2c, 0xf1, 0x0d, 0xa6, 0xce, 0x1a, 0x6b, 0x3b, 0x99, 0x04, 0x23,
+	0x3f, 0x8b, 0x0b, 0x7d, 0xb6, 0x6d, 0x84, 0xa7, 0xda, 0x78, 0x06, 0x03, 0x53, 0xcc, 0x7f, 0xf5,
+	0xf0, 0x01, 0x06, 0x2f, 0xdb, 0x75, 0x23, 0xcf, 0x67, 0xe7, 0x7d, 0x88, 0x7b, 0x45, 0xc1, 0x55,
+	0x43, 0xae, 0x10, 0xbf, 0x4f, 0xf9, 0x19, 0xe2, 0x37, 0x8d, 0x60, 0xdd, 0x3f, 0xe4, 0x7c, 0x02,
+	0x83, 0x57, 0x8d, 0xac, 0x64, 0xc5, 0xc4, 0x5f, 0x13, 0x3b, 0x16, 0xb9, 0x01, 0x60, 0xc5, 0x05,
+	0x27, 0x3f, 0x21, 0xfe, 0xc4, 0x4b, 0x2a, 0xcf, 0xb7, 0x2d, 0xf8, 0x18, 0x22, 0xa6, 0x92, 0x6d,
+	0xf4, 0xe0, 0x8e, 0x51, 0x7b, 0x0e, 0x21, 0x00, 0xb6, 0x00, 0xc1, 0x71, 0x08, 0xe1, 0x52, 0x59,
+	0xa3, 0xb3, 0x63, 0x61, 0x2e, 0xe4, 0x23, 0xc4, 0x33, 0x56, 0xb3, 0x33, 0x16, 0xa9, 0xd2, 0x5a,
+	0xc9, 0x63, 0x69, 0xa7, 0xbf, 0x2f, 0x00, 0x66, 0xf3, 0xb7, 0x73, 0xd6, 0x7d, 0xaf, 0x96, 0xca,
+	0xea, 0xcb, 0xfe, 0x15, 0xe0, 0xb5, 0x51, 0xcc, 0xb7, 0x2f, 0x2d, 0xc5, 0x43, 0x48, 0x70, 0x7c,
+	0x08, 0x81, 0xba, 0xe2, 0xcd, 0x9d, 0x98, 0xe2, 0xde, 0xda, 0xbb, 0x0b, 0x8e, 0x8f, 0x20, 0xd4,
+	0x1b, 0x81, 0x36, 0x62, 0x37, 0x2e, 0xbd, 0xbd, 0x0f, 0x08, 0x8e, 0x63, 0x88, 0xcc, 0xfc, 0xd0,
+	0xc6, 0xdc, 0xae, 0xa4, 0xd7, 0x07, 0x88, 0xa1, 0x1b, 0x7f, 0x1d, 0xdd, 0xcd, 0xdb, 0xd1, 0x77,
+	0x06, 0x30, 0x86, 0xc8, 0xf8, 0xe2, 0xe8, 0xce, 0x79, 0x47, 0xdf, 0x1a, 0xb7, 0x88, 0x34, 0xf2,
+	0xf4, 0x4f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x36, 0xde, 0xb0, 0x85, 0xad, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -147,6 +626,11 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type DSLServiceClient interface {
 	FindOne(ctx context.Context, in *FindOneReq, opts ...grpc.CallOption) (*FindOneResp, error)
+	Find(ctx context.Context, in *FindReq, opts ...grpc.CallOption) (*FindResp, error)
+	Count(ctx context.Context, in *CountReq, opts ...grpc.CallOption) (*CountResp, error)
+	Insert(ctx context.Context, in *InsertReq, opts ...grpc.CallOption) (*InsertResp, error)
+	Update(ctx context.Context, in *UpdateReq, opts ...grpc.CallOption) (*UpdateResp, error)
+	Delete(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*DeleteResp, error)
 }
 
 type dSLServiceClient struct {
@@ -166,9 +650,59 @@ func (c *dSLServiceClient) FindOne(ctx context.Context, in *FindOneReq, opts ...
 	return out, nil
 }
 
+func (c *dSLServiceClient) Find(ctx context.Context, in *FindReq, opts ...grpc.CallOption) (*FindResp, error) {
+	out := new(FindResp)
+	err := c.cc.Invoke(ctx, "/proto.DSLService/Find", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dSLServiceClient) Count(ctx context.Context, in *CountReq, opts ...grpc.CallOption) (*CountResp, error) {
+	out := new(CountResp)
+	err := c.cc.Invoke(ctx, "/proto.DSLService/Count", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dSLServiceClient) Insert(ctx context.Context, in *InsertReq, opts ...grpc.CallOption) (*InsertResp, error) {
+	out := new(InsertResp)
+	err := c.cc.Invoke(ctx, "/proto.DSLService/Insert", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dSLServiceClient) Update(ctx context.Context, in *UpdateReq, opts ...grpc.CallOption) (*UpdateResp, error) {
+	out := new(UpdateResp)
+	err := c.cc.Invoke(ctx, "/proto.DSLService/Update", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dSLServiceClient) Delete(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*DeleteResp, error) {
+	out := new(DeleteResp)
+	err := c.cc.Invoke(ctx, "/proto.DSLService/Delete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DSLServiceServer is the server API for DSLService service.
 type DSLServiceServer interface {
 	FindOne(context.Context, *FindOneReq) (*FindOneResp, error)
+	Find(context.Context, *FindReq) (*FindResp, error)
+	Count(context.Context, *CountReq) (*CountResp, error)
+	Insert(context.Context, *InsertReq) (*InsertResp, error)
+	Update(context.Context, *UpdateReq) (*UpdateResp, error)
+	Delete(context.Context, *DeleteReq) (*DeleteResp, error)
 }
 
 // UnimplementedDSLServiceServer can be embedded to have forward compatible implementations.
@@ -177,6 +711,21 @@ type UnimplementedDSLServiceServer struct {
 
 func (*UnimplementedDSLServiceServer) FindOne(ctx context.Context, req *FindOneReq) (*FindOneResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindOne not implemented")
+}
+func (*UnimplementedDSLServiceServer) Find(ctx context.Context, req *FindReq) (*FindResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Find not implemented")
+}
+func (*UnimplementedDSLServiceServer) Count(ctx context.Context, req *CountReq) (*CountResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Count not implemented")
+}
+func (*UnimplementedDSLServiceServer) Insert(ctx context.Context, req *InsertReq) (*InsertResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Insert not implemented")
+}
+func (*UnimplementedDSLServiceServer) Update(ctx context.Context, req *UpdateReq) (*UpdateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (*UnimplementedDSLServiceServer) Delete(ctx context.Context, req *DeleteReq) (*DeleteResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 
 func RegisterDSLServiceServer(s *grpc.Server, srv DSLServiceServer) {
@@ -201,6 +750,96 @@ func _DSLService_FindOne_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DSLService_Find_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DSLServiceServer).Find(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.DSLService/Find",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DSLServiceServer).Find(ctx, req.(*FindReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DSLService_Count_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DSLServiceServer).Count(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.DSLService/Count",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DSLServiceServer).Count(ctx, req.(*CountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DSLService_Insert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InsertReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DSLServiceServer).Insert(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.DSLService/Insert",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DSLServiceServer).Insert(ctx, req.(*InsertReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DSLService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DSLServiceServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.DSLService/Update",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DSLServiceServer).Update(ctx, req.(*UpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DSLService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DSLServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.DSLService/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DSLServiceServer).Delete(ctx, req.(*DeleteReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _DSLService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.DSLService",
 	HandlerType: (*DSLServiceServer)(nil),
@@ -208,6 +847,26 @@ var _DSLService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindOne",
 			Handler:    _DSLService_FindOne_Handler,
+		},
+		{
+			MethodName: "Find",
+			Handler:    _DSLService_Find_Handler,
+		},
+		{
+			MethodName: "Count",
+			Handler:    _DSLService_Count_Handler,
+		},
+		{
+			MethodName: "Insert",
+			Handler:    _DSLService_Insert_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _DSLService_Update_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _DSLService_Delete_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

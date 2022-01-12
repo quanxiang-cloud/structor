@@ -38,7 +38,6 @@ func (s *service) FindOne(ctx context.Context, req *pb.FindOneReq) (*pb.FindOneR
 		TableName: req.TableName,
 		DSL:       dsl,
 	})
-
 	if err != nil {
 		return &pb.FindOneResp{}, err
 	}
@@ -54,14 +53,111 @@ func (s *service) FindOne(ctx context.Context, req *pb.FindOneReq) (*pb.FindOneR
 	return resp, err
 }
 
-func anyToDSL(any *anypb.Any) (dslservice.DSL, error) {
-	out := structpb.NewNullValue()
-	err := any.UnmarshalTo(out)
+func (s *service) Find(ctx context.Context, req *pb.FindReq) (*pb.FindResp, error) {
+	dsl, err := anyToDSL(req.GetDsl())
 	if err != nil {
-		return dslservice.DSL{}, err
+		return &pb.FindResp{}, err
 	}
 
-	body, err := out.MarshalJSON()
+	result, err := s.dsl.Find(ctx, &dslservice.FindReq{
+		TableName: req.TableName,
+		DSL:       dsl,
+		Page:      req.Page,
+		Size:      req.Size,
+		Sort:      req.Sort,
+	})
+	if err != nil {
+		return &pb.FindResp{}, err
+	}
+
+	out, err := structpb.NewValue(result.Data)
+	if err != nil {
+		return &pb.FindResp{}, err
+	}
+
+	resp := &pb.FindResp{}
+	resp.Data = &anypb.Any{}
+	err = resp.Data.MarshalFrom(out)
+	return resp, err
+}
+
+func (s *service) Count(ctx context.Context, req *pb.CountReq) (*pb.CountResp, error) {
+	dsl, err := anyToDSL(req.GetDsl())
+	if err != nil {
+		return &pb.CountResp{}, err
+	}
+
+	result, err := s.dsl.Count(ctx, &dslservice.CountReq{
+		TableName: req.TableName,
+		DSL:       dsl,
+	})
+	if err != nil {
+		return &pb.CountResp{}, err
+	}
+
+	resp := &pb.CountResp{}
+	resp.Data = result.Data
+	return resp, nil
+}
+
+func (s *service) Insert(ctx context.Context, req *pb.InsertReq) (*pb.InsertResp, error) {
+	entirties, err := anyToEntities(req.GetEntities())
+	if err != nil {
+		return &pb.InsertResp{}, err
+	}
+	_, err = s.dsl.Insert(ctx, &dslservice.InsertReq{
+		TableName: req.TableName,
+		Entirties: entirties,
+	})
+	return &pb.InsertResp{}, err
+}
+
+func (s *service) Update(ctx context.Context, req *pb.UpdateReq) (*pb.UpdateResp, error) {
+	dsl, err := anyToDSL(req.GetDsl())
+	if err != nil {
+		return nil, err
+	}
+
+	entity, err := anyToEntity(req.GetEntity())
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := s.dsl.Update(ctx, &dslservice.UpdateReq{
+		TableName: req.TableName,
+		DSL:       dsl,
+		Entity:    entity,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.UpdateResp{
+		Count: result.Count,
+	}, nil
+}
+
+func (s *service) Delete(ctx context.Context, req *pb.DeleteReq) (*pb.DeleteResp, error) {
+	dsl, err := anyToDSL(req.GetDsl())
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := s.dsl.Delete(ctx, &dslservice.DeleteReq{
+		TableName: req.GetTableName(),
+		DSL:       dsl,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.DeleteResp{
+		Count: result.Count,
+	}, nil
+}
+
+func anyToDSL(any *anypb.Any) (dslservice.DSL, error) {
+	body, err := anyToRaw(any)
 	if err != nil {
 		return dslservice.DSL{}, err
 	}
@@ -73,4 +169,44 @@ func anyToDSL(any *anypb.Any) (dslservice.DSL, error) {
 	}
 
 	return dsl, nil
+}
+
+func anyToEntities(any *anypb.Any) ([]interface{}, error) {
+	body, err := anyToRaw(any)
+	if err != nil {
+		return nil, err
+	}
+
+	var value []interface{}
+	err = json.Unmarshal(body, &value)
+	if err != nil {
+		return nil, err
+	}
+
+	return value, nil
+}
+
+func anyToEntity(any *anypb.Any) (interface{}, error) {
+	body, err := anyToRaw(any)
+	if err != nil {
+		return nil, err
+	}
+
+	var entity interface{}
+	err = json.Unmarshal(body, &entity)
+	return entity, err
+}
+
+func anyToRaw(any *anypb.Any) (json.RawMessage, error) {
+	out := structpb.NewNullValue()
+	err := any.UnmarshalTo(out)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := out.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
 }
