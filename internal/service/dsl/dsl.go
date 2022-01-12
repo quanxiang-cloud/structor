@@ -9,15 +9,18 @@ type Bool map[string][]Query
 type Aggs map[string]Agg
 
 type Agg map[string]struct {
-	Field string `json:"field,omitempty"`
+	Field string `json:"field"`
 }
 
 type Query map[string]Field
 
 type DSL struct {
-	Query Query `json:"query,omitempty"`
-	Bool  Bool  `json:"bool,omitempty"`
-	Aggs  Aggs  `json:"aggs,omitempty"`
+	QY map[string]interface{} `json:"query"`
+
+	Query Query
+	Bool  Bool
+
+	Aggs Aggs `json:"aggs"`
 }
 
 type Field map[string]Value

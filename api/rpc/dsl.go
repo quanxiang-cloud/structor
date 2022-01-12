@@ -164,6 +164,21 @@ func anyToDSL(any *anypb.Any) (dslservice.DSL, error) {
 
 	dsl := dsl.DSL{}
 	err = json.Unmarshal(body, &dsl)
+
+	if value, ok := dsl.QY["bool"]; ok {
+		query, err := json.Marshal(value)
+		if err != nil {
+			return dslservice.DSL{}, err
+		}
+		err = json.Unmarshal(query, &dsl.Bool)
+	} else {
+		query, err := json.Marshal(dsl.QY)
+		if err != nil {
+			return dslservice.DSL{}, err
+		}
+		err = json.Unmarshal(query, &dsl.Query)
+	}
+
 	if err != nil {
 		return dslservice.DSL{}, err
 	}
