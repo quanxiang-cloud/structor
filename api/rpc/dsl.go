@@ -101,7 +101,7 @@ func (s *service) Count(ctx context.Context, req *pb.CountReq) (*pb.CountResp, e
 }
 
 func (s *service) Insert(ctx context.Context, req *pb.InsertReq) (*pb.InsertResp, error) {
-	entirties, err := anyToEntirties(req.GetEntirties())
+	entirties, err := anyToEntities(req.GetEntities())
 	if err != nil {
 		return &pb.InsertResp{}, err
 	}
@@ -109,21 +109,55 @@ func (s *service) Insert(ctx context.Context, req *pb.InsertReq) (*pb.InsertResp
 		TableName: req.TableName,
 		Entirties: entirties,
 	})
+	return &pb.InsertResp{}, err
+}
+
+func (s *service) Update(ctx context.Context, req *pb.UpdateReq) (*pb.UpdateResp, error) {
+	dsl, err := anyToDSL(req.GetDsl())
 	if err != nil {
 		return nil, err
 	}
 
-	return &pb.InsertResp{}, nil
+	entity, err := anyToEntity(req.GetEntity())
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := s.dsl.Update(ctx, &dslservice.UpdateReq{
+		TableName: req.TableName,
+		DSL:       dsl,
+		Entity:    entity,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.UpdateResp{
+		Count: result.Count,
+	}, nil
+}
+
+func (s *service) Delete(ctx context.Context, req *pb.DeleteReq) (*pb.DeleteResp, error) {
+	dsl, err := anyToDSL(req.GetDsl())
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := s.dsl.Delete(ctx, &dslservice.DeleteReq{
+		TableName: req.GetTableName(),
+		DSL:       dsl,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.DeleteResp{
+		Count: result.Count,
+	}, nil
 }
 
 func anyToDSL(any *anypb.Any) (dslservice.DSL, error) {
-	out := structpb.NewNullValue()
-	err := any.UnmarshalTo(out)
-	if err != nil {
-		return dslservice.DSL{}, err
-	}
-
-	body, err := out.MarshalJSON()
+	body, err := anyToRaw(any)
 	if err != nil {
 		return dslservice.DSL{}, err
 	}
@@ -137,14 +171,8 @@ func anyToDSL(any *anypb.Any) (dslservice.DSL, error) {
 	return dsl, nil
 }
 
-func anyToEntirties(any *anypb.Any) ([]interface{}, error) {
-	out := structpb.NewNullValue()
-	err := any.UnmarshalTo(out)
-	if err != nil {
-		return nil, err
-	}
-
-	body, err := out.MarshalJSON()
+func anyToEntities(any *anypb.Any) ([]interface{}, error) {
+	body, err := anyToRaw(any)
 	if err != nil {
 		return nil, err
 	}
@@ -156,4 +184,29 @@ func anyToEntirties(any *anypb.Any) ([]interface{}, error) {
 	}
 
 	return value, nil
+}
+
+func anyToEntity(any *anypb.Any) (interface{}, error) {
+	body, err := anyToRaw(any)
+	if err != nil {
+		return nil, err
+	}
+
+	var entity interface{}
+	err = json.Unmarshal(body, &entity)
+	return entity, err
+}
+
+func anyToRaw(any *anypb.Any) (json.RawMessage, error) {
+	out := structpb.NewNullValue()
+	err := any.UnmarshalTo(out)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := out.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
 }

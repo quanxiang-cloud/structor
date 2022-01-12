@@ -13,6 +13,8 @@ type DSLService interface {
 	Find(ctx context.Context, req *FindReq) (*FindResp, error)
 	Count(ctx context.Context, req *CountReq) (*CountResp, error)
 	Insert(ctx context.Context, req *InsertReq) (*InsertResp, error)
+	Update(ctx context.Context, req *UpdateReq) (*UpdateResp, error)
+	Delete(ctx context.Context, req *DeleteReq) (*DeleteResp, error)
 }
 
 type dsl struct {
@@ -83,7 +85,7 @@ type FindReq struct {
 }
 
 type FindResp struct {
-	Data interface{}
+	Data []interface{}
 }
 
 func (d *dsl) Find(ctx context.Context, req *FindReq) (*FindResp, error) {
@@ -109,8 +111,13 @@ func (d *dsl) Find(ctx context.Context, req *FindReq) (*FindResp, error) {
 		return &FindResp{}, err
 	}
 
+	dl := make([]interface{}, 0, len(data))
+	for _, v := range data {
+		dl = append(dl, v)
+	}
+
 	return &FindResp{
-		Data: data,
+		Data: dl,
 	}, nil
 }
 
@@ -148,6 +155,33 @@ func (d *dsl) Count(ctx context.Context, req *CountReq) (*CountResp, error) {
 	}, nil
 }
 
+type UpdateReq struct {
+	TableName string
+	DSL       DSL
+	Entity    interface{}
+}
+
+type UpdateResp struct {
+	Count int64
+}
+
+func (d *dsl) Update(ctx context.Context, req *UpdateReq) (*UpdateResp, error) {
+	where, _, err := d.convert(req.DSL)
+	if err != nil {
+		return &UpdateResp{}, err
+	}
+
+	ql := d.db.Table(req.TableName)
+	if where != nil {
+		ql = ql.Where(where)
+	}
+
+	count, err := ql.Update(ctx, req.Entity)
+	return &UpdateResp{
+		Count: count,
+	}, err
+}
+
 type InsertReq struct {
 	TableName string
 	Entirties []interface{}
@@ -164,6 +198,36 @@ func (d *dsl) Insert(ctx context.Context, req *InsertReq) (*InsertResp, error) {
 	}
 
 	return &InsertResp{}, nil
+}
+
+type DeleteReq struct {
+	TableName string
+	DSL       DSL
+}
+
+type DeleteResp struct {
+	Count int64
+}
+
+func (d *dsl) Delete(ctx context.Context, req *DeleteReq) (*DeleteResp, error) {
+	where, _, err := d.convert(req.DSL)
+	if err != nil {
+		return &DeleteResp{}, err
+	}
+
+	ql := d.db.Table(req.TableName)
+	if where != nil {
+		ql = ql.Where(where)
+	}
+
+	count, err := ql.Delete(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &DeleteResp{
+		Count: count,
+	}, nil
 }
 
 func (d *dsl) convert(dsl DSL) (where clause.Expression, aggs []clause.Expression, err error) {

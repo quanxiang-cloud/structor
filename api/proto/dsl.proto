@@ -35,14 +35,35 @@ message CountResp{
 
 message InsertReq{
     string tableName = 1;
-    google.protobuf.Any entirties = 2;
+    google.protobuf.Any Entities = 2;
 }
 
 message InsertResp{}
+
+message UpdateReq{
+    string tableName = 1;
+    google.protobuf.Any dsl = 2;
+    google.protobuf.Any entity = 3;
+}
+
+message UpdateResp{
+    sint64 count = 1;
+}
+
+message DeleteReq{
+    string tableName = 1;
+    google.protobuf.Any dsl = 2;
+}
+
+message DeleteResp{
+    sint64 count = 1;
+}
 
 service DSLService{
     rpc FindOne(FindOneReq)returns(FindOneResp);
     rpc Find(FindReq)returns(FindResp);
     rpc Count(CountReq)returns(CountResp);
     rpc Insert(InsertReq)returns(InsertResp);
+    rpc Update(UpdateReq)returns(UpdateResp);
+    rpc Delete(DeleteReq)returns(DeleteResp);
 }
