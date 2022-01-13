@@ -105,11 +105,13 @@ func (s *service) Insert(ctx context.Context, req *pb.InsertReq) (*pb.InsertResp
 	if err != nil {
 		return &pb.InsertResp{}, err
 	}
-	_, err = s.dsl.Insert(ctx, &dslservice.InsertReq{
+	resp, err := s.dsl.Insert(ctx, &dslservice.InsertReq{
 		TableName: req.TableName,
 		Entirties: entirties,
 	})
-	return &pb.InsertResp{}, err
+	return &pb.InsertResp{
+		Count: resp.Count,
+	}, err
 }
 
 func (s *service) Update(ctx context.Context, req *pb.UpdateReq) (*pb.UpdateResp, error) {
@@ -186,19 +188,22 @@ func anyToDSL(any *anypb.Any) (dslservice.DSL, error) {
 	return dsl, nil
 }
 
-func anyToEntities(any *anypb.Any) ([]interface{}, error) {
-	body, err := anyToRaw(any)
-	if err != nil {
-		return nil, err
-	}
+func anyToEntities(any []*anypb.Any) ([]interface{}, error) {
+	var entities []interface{}
+	for _, v := range any {
+		body, err := anyToRaw(v)
+		if err != nil {
+			return nil, err
+		}
 
-	var value []interface{}
-	err = json.Unmarshal(body, &value)
-	if err != nil {
-		return nil, err
+		var entity interface{}
+		err = json.Unmarshal(body, &entity)
+		if err != nil {
+			return nil, err
+		}
+		entities = append(entities, entity)
 	}
-
-	return value, nil
+	return entities, nil
 }
 
 func anyToEntity(any *anypb.Any) (interface{}, error) {
