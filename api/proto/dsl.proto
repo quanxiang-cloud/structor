@@ -35,10 +35,12 @@ message CountResp{
 
 message InsertReq{
     string tableName = 1;
-    google.protobuf.Any Entities = 2;
+    repeated google.protobuf.Any Entities = 2;
 }
 
-message InsertResp{}
+message InsertResp{
+    sint64 count = 1;
+}
 
 message UpdateReq{
     string tableName = 1;

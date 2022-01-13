@@ -187,17 +187,21 @@ type InsertReq struct {
 	Entirties []interface{}
 }
 
-type InsertResp struct{}
+type InsertResp struct {
+	Count int64
+}
 
 func (d *dsl) Insert(ctx context.Context, req *InsertReq) (*InsertResp, error) {
 	ql := d.db.Table(req.TableName)
 
-	err := ql.Insert(ctx, req.Entirties...)
+	count, err := ql.Insert(ctx, req.Entirties...)
 	if err != nil {
 		return &InsertResp{}, err
 	}
 
-	return &InsertResp{}, nil
+	return &InsertResp{
+		Count: count,
+	}, nil
 }
 
 type DeleteReq struct {
