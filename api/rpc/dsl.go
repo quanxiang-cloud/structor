@@ -101,13 +101,13 @@ func (s *service) Count(ctx context.Context, req *pb.CountReq) (*pb.CountResp, e
 }
 
 func (s *service) Insert(ctx context.Context, req *pb.InsertReq) (*pb.InsertResp, error) {
-	entirties, err := anyToEntities(req.GetEntities())
+	entities, err := anyToEntities(req.GetEntities())
 	if err != nil {
 		return &pb.InsertResp{}, err
 	}
 	resp, err := s.dsl.Insert(ctx, &dslservice.InsertReq{
 		TableName: req.TableName,
-		Entirties: entirties,
+		Entities:  entities,
 	})
 	return &pb.InsertResp{
 		Count: resp.Count,

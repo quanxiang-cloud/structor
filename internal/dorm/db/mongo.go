@@ -211,8 +211,8 @@ func (d *Dorm) Find(ctx context.Context) ([]map[string]interface{}, error) {
 func (d *Dorm) Count(ctx context.Context) (int64, error) {
 	return d.C.CountDocuments(ctx, d.builder.Vars)
 }
-func (d *Dorm) Insert(ctx context.Context, entirties ...interface{}) (int64, error) {
-	ret, err := d.C.InsertMany(ctx, entirties)
+func (d *Dorm) Insert(ctx context.Context, entities ...interface{}) (int64, error) {
+	ret, err := d.C.InsertMany(ctx, entities)
 	return int64(len(ret.InsertedIDs)), err
 }
 func (d *Dorm) Update(ctx context.Context, entity interface{}) (int64, error) {

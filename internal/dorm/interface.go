@@ -17,7 +17,7 @@ type Dorm interface {
 	FindOne(ctx context.Context) (map[string]interface{}, error)
 	Find(ctx context.Context) ([]map[string]interface{}, error)
 	Count(ctx context.Context) (int64, error)
-	Insert(ctx context.Context, entirties ...interface{}) (int64, error)
+	Insert(ctx context.Context, entities ...interface{}) (int64, error)
 	Update(ctx context.Context, entity interface{}) (int64, error)
 	Delete(ctx context.Context) (int64, error)
 }
