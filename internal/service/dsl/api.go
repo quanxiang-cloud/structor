@@ -184,7 +184,7 @@ func (d *dsl) Update(ctx context.Context, req *UpdateReq) (*UpdateResp, error) {
 
 type InsertReq struct {
 	TableName string
-	Entirties []interface{}
+	Entities  []interface{}
 }
 
 type InsertResp struct {
@@ -194,7 +194,7 @@ type InsertResp struct {
 func (d *dsl) Insert(ctx context.Context, req *InsertReq) (*InsertResp, error) {
 	ql := d.db.Table(req.TableName)
 
-	count, err := ql.Insert(ctx, req.Entirties...)
+	count, err := ql.Insert(ctx, req.Entities...)
 	if err != nil {
 		return &InsertResp{}, err
 	}
