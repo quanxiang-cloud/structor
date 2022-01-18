@@ -13,11 +13,13 @@ import (
 )
 
 type service struct {
-	dsl dslservice.DSLService
+	dsl    dslservice.DSLService
+	suffix string
 }
 
 type Config struct {
-	DB *db.Dorm
+	DB     *db.Dorm
+	Suffix string
 }
 
 func new(ctx context.Context, conf *Config) pb.DSLServiceServer {
@@ -25,6 +27,7 @@ func new(ctx context.Context, conf *Config) pb.DSLServiceServer {
 		dsl: dslservice.New(ctx,
 			dslservice.WithDB(conf.DB),
 		),
+		suffix: conf.Suffix,
 	}
 }
 
@@ -37,7 +40,8 @@ func (s *service) FindOne(ctx context.Context, req *pb.FindOneReq) (*pb.FindOneR
 	result, err := s.dsl.FindOne(ctx, &dslservice.FindOneReq{
 		TableName: req.TableName,
 		DSL:       dsl,
-	})
+	},
+		dslservice.WithSearch(s.suffix))
 	if err != nil {
 		return &pb.FindOneResp{}, err
 	}
@@ -65,7 +69,8 @@ func (s *service) Find(ctx context.Context, req *pb.FindReq) (*pb.FindResp, erro
 		Page:      req.Page,
 		Size:      req.Size,
 		Sort:      req.Sort,
-	})
+	},
+		dslservice.WithSearch(s.suffix))
 	if err != nil {
 		return &pb.FindResp{}, err
 	}
@@ -108,7 +113,8 @@ func (s *service) Insert(ctx context.Context, req *pb.InsertReq) (*pb.InsertResp
 	resp, err := s.dsl.Insert(ctx, &dslservice.InsertReq{
 		TableName: req.TableName,
 		Entities:  entities,
-	})
+	},
+		dslservice.WithInsert(s.suffix))
 	return &pb.InsertResp{
 		Count: resp.Count,
 	}, err
