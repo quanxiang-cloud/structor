@@ -56,8 +56,11 @@ func WithInsert(suffix string) APIOption {
 			}
 			iter := reflect.ValueOf(entity).MapRange()
 			for iter.Next() {
-				if !iter.Value().CanInterface() ||
-					!strings.HasSuffix(iter.Key().String(), suffix) {
+				if !iter.Value().CanInterface() {
+					continue
+				}
+
+				if !strings.HasSuffix(iter.Key().String(), suffix) {
 					continue
 				}
 
@@ -82,8 +85,11 @@ func WithSearch(suffix string) APIOption {
 			}
 			iter := reflect.ValueOf(data).MapRange()
 			for iter.Next() {
-				if !iter.Value().CanInterface() ||
-					!strings.HasSuffix(iter.Key().String(), suffix) {
+				if !iter.Value().CanInterface() {
+					continue
+				}
+
+				if !strings.HasSuffix(iter.Key().String(), suffix) {
 					continue
 				}
 
