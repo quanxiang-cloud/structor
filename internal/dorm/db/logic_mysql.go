@@ -15,16 +15,12 @@ func must() clause.Expression {
 }
 
 func (m *MUST) Build(builder clause.Builder) {
-	// vars := make([]string, 0, len(m.Vars))
-	// for _, val := range m.Vars {
-	// 	val.(clause.Expression).Build(builder)
-	// 	each, ok := builder.GetVar().(string)
-	// 	if ok {
-	// 		vars = append(vars, each)
-	// 	}
-	// }
-	// expc := strings.Join(vars, "and")
-	// builder.AddVar(expc)
+	for i, val := range m.Vars {
+		if i != 0 {
+			builder.WriteQuoted(" and ")
+		}
+		val.(clause.Expression).Build(builder)
+	}
 }
 
 type SHOULD struct {
@@ -36,16 +32,12 @@ func should() clause.Expression {
 }
 
 func (s *SHOULD) Build(builder clause.Builder) {
-	// vars := make([]string, 0, len(s.Vars))
-	// for _, val := range s.Vars {
-	// 	val.(clause.Expression).Build(builder)
-	// 	each, ok := builder.GetVar().(string)
-	// 	if ok {
-	// 		vars = append(vars, each)
-	// 	}
-	// }
-	// expc := strings.Join(vars, "or")
-	// builder.AddVar(expc)
+	for i, val := range s.Vars {
+		if i != 0 {
+			builder.WriteQuoted(" or ")
+		}
+		val.(clause.Expression).Build(builder)
+	}
 }
 
 type MUSTNOT struct {
@@ -57,7 +49,14 @@ func mustNot() clause.Expression {
 }
 
 func (m *MUSTNOT) Build(builder clause.Builder) {
-	// TODO:
+	builder.WriteString(" not ( ")
+	for i, val := range m.Vars {
+		if i != 0 {
+			builder.WriteQuoted(" and ")
+		}
+		val.(clause.Expression).Build(builder)
+	}
+	builder.WriteString(" ) ")
 }
 
 type RANGE struct {
@@ -69,5 +68,10 @@ func range1() clause.Expression {
 }
 
 func (r *RANGE) Build(builder clause.Builder) {
-	// TODO:
+	for i, val := range r.Vars {
+		if i != 0 {
+			builder.WriteQuoted(" and ")
+		}
+		val.(clause.Expression).Build(builder)
+	}
 }

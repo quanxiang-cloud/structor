@@ -17,7 +17,6 @@ func terms() clause.Expression {
 }
 
 func (t *Terms) Build(builder clause.Builder) {
-	// TODO:
 	builder.WriteString(fmt.Sprintf(" %s in ? ", t.Column))
 	builder.AddVar(t.Values)
 }

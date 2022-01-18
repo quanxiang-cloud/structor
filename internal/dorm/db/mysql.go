@@ -121,12 +121,12 @@ func (d *Dorm) Select(expr ...clause.Expression) dorm.Dorm {
 }
 
 func (d *Dorm) Limit(limit int64) dorm.Dorm {
-	// TODO:
+	d.db = d.db.Limit(int(limit))
 	return d
 }
 
 func (d *Dorm) Offset(offset int64) dorm.Dorm {
-	// TODO:
+	d.db = d.db.Offset(int(offset))
 	return d
 }
 
@@ -149,7 +149,7 @@ func (d *Dorm) Find(ctx context.Context) ([]map[string]interface{}, error) {
 
 func (d *Dorm) Count(ctx context.Context) (int64, error) {
 	var ret int64
-	err := d.db.Count(&ret).Error
+	err := d.db.Where(d.builder.val.Condition.String(), d.builder.val.vars...).Count(&ret).Error
 	return ret, err
 }
 
@@ -168,13 +168,13 @@ func (d *Dorm) Insert(ctx context.Context, entities ...interface{}) (int64, erro
 }
 
 func (d *Dorm) Update(ctx context.Context, entity interface{}) (int64, error) {
-	affected := d.db.Updates(entity).RowsAffected
+	affected := d.db.Where(d.builder.val.Condition.String(), d.builder.val.vars...).Updates(entity).RowsAffected
 	return affected, nil
 }
 
 func (d *Dorm) Delete(ctx context.Context) (int64, error) {
-	// TODO:
-	return 0, nil
+	affected := d.db.Where(d.builder.val.Condition.String(), d.builder.val.vars...).Delete(nil).RowsAffected
+	return affected, nil
 }
 
 type MYSQL struct {
