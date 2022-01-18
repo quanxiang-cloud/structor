@@ -12,10 +12,17 @@ import (
 type Server struct {
 	*grpc.Server
 
-	dsl pb.DSLServiceServer
+	dsl    pb.DSLServiceServer
+	suffix string
 }
 
-func New(ctx context.Context) (*Server, error) {
+func New(ctx context.Context, opts ...Option) (*Server, error) {
+	s := &Server{}
+
+	for _, opt := range opts {
+		opt(s)
+	}
+
 	server := grpc.NewServer()
 
 	db, err := db.New()
@@ -24,15 +31,15 @@ func New(ctx context.Context) (*Server, error) {
 	}
 
 	dsl := new(ctx, &Config{
-		DB: db,
+		DB:     db,
+		Suffix: s.suffix,
 	})
 
 	pb.RegisterDSLServiceServer(server, dsl)
+	s.Server = server
+	s.dsl = dsl
 
-	return &Server{
-		Server: server,
-		dsl:    dsl,
-	}, nil
+	return s, nil
 }
 
 func (s *Server) Run(port string) error {
@@ -42,4 +49,12 @@ func (s *Server) Run(port string) error {
 	}
 
 	return s.Server.Serve(lis)
+}
+
+type Option func(*Server)
+
+func WithSuffix(suffix string) Option {
+	return func(s *Server) {
+		s.suffix = suffix
+	}
 }
