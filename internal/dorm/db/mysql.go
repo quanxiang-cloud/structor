@@ -7,6 +7,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"strings"
 
 	"github.com/quanxiang-cloud/cabin/logger"
 	msc "github.com/quanxiang-cloud/cabin/tailormade/db/mysql"
@@ -135,7 +136,14 @@ func (d *Dorm) Offset(offset int64) dorm.Dorm {
 }
 
 func (d *Dorm) Order(order ...string) dorm.Dorm {
-	d.db = d.db.Order(order)
+	for _, o := range order {
+		if strings.HasPrefix(o, "-") {
+			o = o[1:] + " desc"
+		} else {
+			o = o + " asc"
+		}
+		d.db.Order(o)
+	}
 	return d
 }
 
