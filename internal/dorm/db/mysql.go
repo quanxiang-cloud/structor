@@ -135,7 +135,7 @@ func (d *Dorm) Offset(offset int64) dorm.Dorm {
 }
 
 func (d *Dorm) Order(order ...string) dorm.Dorm {
-	// TODO:
+	d.db = d.db.Order(order)
 	return d
 }
 
@@ -162,15 +162,8 @@ func (d *Dorm) Count(ctx context.Context) (int64, error) {
 
 func (d *Dorm) Insert(ctx context.Context, entities ...interface{}) (int64, error) {
 	var ret int64 = 0
-	var err error
-	for _, v := range entities {
-		err2 := d.db.Create(v).Error
-		if err2 != nil {
-			err = err2
-			continue
-		}
-		ret++
-	}
+	err := d.db.CreateInBatches(entities, len(entities)).Error
+	ret = int64(len(entities))
 	return ret, err
 }
 
