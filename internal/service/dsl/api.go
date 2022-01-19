@@ -45,9 +45,11 @@ func WithDB(db *db.Dorm) Option {
 	}
 }
 
+const suffix = "clause"
+
 type APIOption func(...interface{}) error
 
-func WithInsert(suffix string) APIOption {
+func WithMarshal() APIOption {
 	return func(entities ...interface{}) error {
 		for _, entity := range entities {
 			ek := reflect.TypeOf(entity).Kind()
@@ -76,7 +78,7 @@ func WithInsert(suffix string) APIOption {
 	}
 }
 
-func WithSearch(suffix string) APIOption {
+func WithUnmarshal() APIOption {
 	return func(datas ...interface{}) error {
 		for _, data := range datas {
 			dk := reflect.TypeOf(data).Kind()
@@ -246,6 +248,10 @@ func (d *dsl) Update(ctx context.Context, req *UpdateReq, apiOpts ...APIOption) 
 	ql := d.db.Table(req.TableName)
 	if where != nil {
 		ql = ql.Where(where)
+	}
+
+	for _, opt := range apiOpts {
+		opt(req.Entity)
 	}
 
 	count, err := ql.Update(ctx, req.Entity)

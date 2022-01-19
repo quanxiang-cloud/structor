@@ -16,13 +16,7 @@ type Server struct {
 	suffix string
 }
 
-func New(ctx context.Context, opts ...Option) (*Server, error) {
-	s := &Server{}
-
-	for _, opt := range opts {
-		opt(s)
-	}
-
+func New(ctx context.Context) (*Server, error) {
 	server := grpc.NewServer()
 
 	db, err := db.New()
@@ -31,15 +25,15 @@ func New(ctx context.Context, opts ...Option) (*Server, error) {
 	}
 
 	dsl := new(ctx, &Config{
-		DB:     db,
-		Suffix: s.suffix,
+		DB: db,
 	})
 
 	pb.RegisterDSLServiceServer(server, dsl)
-	s.Server = server
-	s.dsl = dsl
 
-	return s, nil
+	return &Server{
+		Server: server,
+		dsl:    dsl,
+	}, nil
 }
 
 func (s *Server) Run(port string) error {
@@ -49,12 +43,4 @@ func (s *Server) Run(port string) error {
 	}
 
 	return s.Server.Serve(lis)
-}
-
-type Option func(*Server)
-
-func WithSuffix(suffix string) Option {
-	return func(s *Server) {
-		s.suffix = suffix
-	}
 }
