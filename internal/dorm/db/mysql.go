@@ -17,6 +17,10 @@ import (
 )
 
 var (
+	BATCHSIZE = 1000
+)
+
+var (
 	host     string
 	db       string
 	username string
@@ -180,7 +184,7 @@ func (d *Dorm) Insert(ctx context.Context, entities ...interface{}) (int64, erro
 		ormEntities = append(ormEntities, e)
 	}
 
-	err := d.db.Debug().CreateInBatches(ormEntities, 1000).Error
+	err := d.db.Debug().CreateInBatches(ormEntities, BATCHSIZE).Error
 	ret = int64(len(entities))
 	return ret, err
 }
