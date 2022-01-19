@@ -43,7 +43,7 @@ func SetExpressions(es map[string]Expr) {
 	expressions = es
 }
 
-func getExpressions() map[string]Expr {
+func GetExpressions() map[string]Expr {
 	return expressions
 }
 
@@ -58,7 +58,7 @@ func New() *Clause {
 
 // GetExpression get expression with op
 func (c *Clause) GetExpression(op string, column string, values ...interface{}) (Expression, error) {
-	exprs := getExpressions()
+	exprs := GetExpressions()
 	if exprs == nil {
 		return nil, ErrNoExpression
 	}
@@ -67,6 +67,7 @@ func (c *Clause) GetExpression(op string, column string, values ...interface{}) 
 	if !ok {
 		return nil, ErrNoExpression
 	}
+
 	expression := expr()
 	expression.Set(column, values...)
 	return expression, nil

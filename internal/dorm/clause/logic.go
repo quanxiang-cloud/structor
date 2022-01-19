@@ -52,7 +52,8 @@ func (m *MUSTNOT) Set(column string, values ...interface{}) {
 }
 
 type RANGE struct {
-	logical
+	Column string
+	Vars   []interface{}
 }
 
 func (r *RANGE) GetTag() string {
@@ -60,5 +61,6 @@ func (r *RANGE) GetTag() string {
 }
 
 func (r *RANGE) Set(column string, values ...interface{}) {
-	r.LSet(values...)
+	r.Column = column
+	r.Vars = values
 }

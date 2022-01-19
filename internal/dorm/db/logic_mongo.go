@@ -70,11 +70,17 @@ func range1() clause.Expression {
 }
 
 func (r *RANGE) Build(builder clause.Builder) {
-	vars := make([]interface{}, 0, len(r.Vars))
-	for _, value := range r.Vars {
-		value.(clause.Expression).Build(builder)
-		vars = append(vars, builder.GetVar())
+	if len(r.Vars) != 0 {
+		if val, ok := r.Vars[0].(map[string]interface{}); ok {
+			vars := make([]interface{}, 0, len(r.Vars))
+			for k, v := range val {
+				subBuilder := clause.GetExpressions()[k]()
+				subBuilder.Set(r.Column, v)
+				subBuilder.Build(builder)
+				vars = append(vars, builder.GetVar())
+			}
+			builder.WriteString("$and")
+			builder.AddVar(vars)
+		}
 	}
-	builder.WriteString("$and")
-	builder.AddVar(vars)
 }
