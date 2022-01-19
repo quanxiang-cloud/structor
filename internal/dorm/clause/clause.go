@@ -2,7 +2,6 @@ package clause
 
 import (
 	"errors"
-	"fmt"
 )
 
 // Writer write
@@ -44,7 +43,7 @@ func SetExpressions(es map[string]Expr) {
 	expressions = es
 }
 
-func getExpressions() map[string]Expr {
+func GetExpressions() map[string]Expr {
 	return expressions
 }
 
@@ -59,7 +58,7 @@ func New() *Clause {
 
 // GetExpression get expression with op
 func (c *Clause) GetExpression(op string, column string, values ...interface{}) (Expression, error) {
-	exprs := getExpressions()
+	exprs := GetExpressions()
 	if exprs == nil {
 		return nil, ErrNoExpression
 	}
@@ -70,19 +69,6 @@ func (c *Clause) GetExpression(op string, column string, values ...interface{}) 
 	}
 
 	expression := expr()
-	if expression.GetTag() == "range" {
-		if len(values) == 0 {
-			return nil, fmt.Errorf("range expression must have one")
-		}
-		subVal := values[0].(map[string]interface{})
-		values = values[:0]
-		for k, v := range subVal {
-			subExpr := exprs[k]()
-			subExpr.Set(column, v)
-			values = append(values, subExpr)
-		}
-	}
-
 	expression.Set(column, values...)
 	return expression, nil
 }

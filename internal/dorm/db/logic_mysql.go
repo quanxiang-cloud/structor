@@ -68,10 +68,20 @@ func range1() clause.Expression {
 }
 
 func (r *RANGE) Build(builder clause.Builder) {
-	for i, val := range r.Vars {
-		if i != 0 {
-			builder.WriteQuoted(" and ")
+	if len(r.Vars) != 0 {
+		val, ok := r.Vars[0].(map[string]interface{})
+		if ok {
+			count := 0
+			for k, v := range val {
+				if count != 0 {
+					builder.WriteQuoted(" and ")
+				}
+
+				subBuilder := clause.GetExpressions()[k]()
+				subBuilder.Set(r.Column, v)
+				subBuilder.Build(builder)
+				count++
+			}
 		}
-		val.(clause.Expression).Build(builder)
 	}
 }
