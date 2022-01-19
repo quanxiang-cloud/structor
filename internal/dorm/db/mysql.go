@@ -162,7 +162,17 @@ func (d *Dorm) Count(ctx context.Context) (int64, error) {
 
 func (d *Dorm) Insert(ctx context.Context, entities ...interface{}) (int64, error) {
 	var ret int64 = 0
-	err := d.db.CreateInBatches(entities, len(entities)).Error
+
+	ormEntities := make([]map[string]interface{}, 0, len(entities))
+	for _, entity := range entities {
+		e, ok := entity.(map[string]interface{})
+		if !ok {
+			return 0, fmt.Errorf("entity must be map[string]interface{}")
+		}
+		ormEntities = append(ormEntities, e)
+	}
+
+	err := d.db.Debug().CreateInBatches(ormEntities, 1000).Error
 	ret = int64(len(entities))
 	return ret, err
 }
