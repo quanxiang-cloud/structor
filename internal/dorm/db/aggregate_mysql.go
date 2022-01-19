@@ -2,7 +2,11 @@
 
 package db
 
-import "github.com/quanxiang-cloud/structor/internal/dorm/clause"
+import (
+	"fmt"
+
+	"github.com/quanxiang-cloud/structor/internal/dorm/clause"
+)
 
 type Sum struct {
 	clause.Sum
@@ -13,7 +17,10 @@ func sum() clause.Expression {
 }
 
 func (s *Sum) Build(builder clause.Builder) {
-	// TODO:
+	value, ok := s.Value.(string)
+	if ok {
+		builder.AddAggVar(s.Alias, fmt.Sprintf("sum(%s)", value))
+	}
 }
 
 type Avg struct {
@@ -25,7 +32,10 @@ func avg() clause.Expression {
 }
 
 func (a *Avg) Build(builder clause.Builder) {
-	// TODO:
+	value, ok := a.Value.(string)
+	if ok {
+		builder.AddAggVar(a.Alias, fmt.Sprintf("avg(%s)", value))
+	}
 }
 
 type Min struct {
@@ -37,7 +47,10 @@ func min() clause.Expression {
 }
 
 func (m *Min) Build(builder clause.Builder) {
-	// TODO:
+	value, ok := m.Value.(string)
+	if ok {
+		builder.AddAggVar(m.Alias, fmt.Sprintf("min(%s)", value))
+	}
 }
 
 type Max struct {
@@ -49,5 +62,8 @@ func max() clause.Expression {
 }
 
 func (m *Max) Build(builder clause.Builder) {
-	// TODO:
+	value, ok := m.Value.(string)
+	if ok {
+		builder.AddAggVar(m.Alias, fmt.Sprintf("max(%s)", value))
+	}
 }

@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"flag"
+	"fmt"
 
 	"github.com/quanxiang-cloud/cabin/logger"
 	msc "github.com/quanxiang-cloud/cabin/tailormade/db/mysql"
@@ -101,6 +102,7 @@ func (d *Dorm) Table(tablename string) dorm.Dorm {
 		val: &ConditionVal{
 			Condition: bytes.Buffer{},
 		},
+		agg: bytes.Buffer{},
 	}
 
 	return &Dorm{
@@ -115,8 +117,10 @@ func (d *Dorm) Where(expr clause.Expression) dorm.Dorm {
 	return d
 }
 
-func (d *Dorm) Select(expr ...clause.Expression) dorm.Dorm {
-	// TODO:
+func (d *Dorm) Select(exprs ...clause.Expression) dorm.Dorm {
+	for _, expr := range exprs {
+		expr.Build(d.builder)
+	}
 	return d
 }
 
@@ -143,6 +147,9 @@ func (d *Dorm) FindOne(ctx context.Context) (map[string]interface{}, error) {
 
 func (d *Dorm) Find(ctx context.Context) ([]map[string]interface{}, error) {
 	ret := make([]map[string]interface{}, 0)
+	if d.builder.agg.Len() != 0 {
+		d.db = d.db.Select(d.builder.agg.String())
+	}
 	err := d.db.Where(d.builder.val.Condition.String(), d.builder.val.vars...).Find(&ret).Error
 	return ret, err
 }
@@ -181,6 +188,7 @@ type MYSQL struct {
 	table string
 
 	val *ConditionVal
+	agg bytes.Buffer
 }
 
 type ConditionVal struct {
@@ -211,9 +219,12 @@ func (m *MYSQL) GetVar() interface{} {
 }
 
 func (m *MYSQL) WriteQuotedAgg(field string) {
-	// TODO:
+	m.agg.WriteString(field)
 }
 
 func (m *MYSQL) AddAggVar(key string, value interface{}) {
-	// TODO:
+	if m.agg.Len() > 0 {
+		m.agg.WriteString(", ")
+	}
+	m.agg.WriteString(fmt.Sprintf("%s %s", value, key))
 }
