@@ -71,9 +71,8 @@ func range1() clause.Expression {
 
 func (r *RANGE) Build(builder clause.Builder) {
 	if len(r.Vars) != 0 {
-		val, ok := r.Vars[0].(map[string]interface{})
-		vars := make([]interface{}, 0, len(r.Vars))
-		if ok {
+		if val, ok := r.Vars[0].(map[string]interface{}); ok {
+			vars := make([]interface{}, 0, len(r.Vars))
 			for k, v := range val {
 				subBuilder := clause.GetExpressions()[k]()
 				subBuilder.Set(r.Column, v)

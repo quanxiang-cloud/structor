@@ -17,8 +17,7 @@ func sum() clause.Expression {
 }
 
 func (s *Sum) Build(builder clause.Builder) {
-	value, ok := s.Value.(string)
-	if ok {
+	if value, ok := s.Value.(string); ok {
 		builder.AddAggVar(s.Alias, fmt.Sprintf("sum(%s)", value))
 	}
 }
@@ -32,8 +31,7 @@ func avg() clause.Expression {
 }
 
 func (a *Avg) Build(builder clause.Builder) {
-	value, ok := a.Value.(string)
-	if ok {
+	if value, ok := a.Value.(string); ok {
 		builder.AddAggVar(a.Alias, fmt.Sprintf("avg(%s)", value))
 	}
 }
@@ -47,8 +45,7 @@ func min() clause.Expression {
 }
 
 func (m *Min) Build(builder clause.Builder) {
-	value, ok := m.Value.(string)
-	if ok {
+	if value, ok := m.Value.(string); ok {
 		builder.AddAggVar(m.Alias, fmt.Sprintf("min(%s)", value))
 	}
 }
@@ -62,8 +59,7 @@ func max() clause.Expression {
 }
 
 func (m *Max) Build(builder clause.Builder) {
-	value, ok := m.Value.(string)
-	if ok {
+	if value, ok := m.Value.(string); ok {
 		builder.AddAggVar(m.Alias, fmt.Sprintf("max(%s)", value))
 	}
 }

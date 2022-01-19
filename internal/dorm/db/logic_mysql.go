@@ -69,8 +69,7 @@ func range1() clause.Expression {
 
 func (r *RANGE) Build(builder clause.Builder) {
 	if len(r.Vars) != 0 {
-		val, ok := r.Vars[0].(map[string]interface{})
-		if ok {
+		if val, ok := r.Vars[0].(map[string]interface{}); ok {
 			count := 0
 			for k, v := range val {
 				if count != 0 {
