@@ -238,7 +238,7 @@ func (d *dsl) convert(dsl DSL) (where clause.Expression, aggs []clause.Expressio
 	aggs = make([]clause.Expression, 0)
 	for alias, agg := range dsl.Aggs {
 		for op, field := range agg {
-			expr, err := d.clause.GetExpression(op, alias, field.Field)
+			expr, err := clause.GetExpression(op, alias, field.Field)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -259,7 +259,7 @@ func (d *dsl) convert(dsl DSL) (where clause.Expression, aggs []clause.Expressio
 			}
 		}
 
-		where, err = d.clause.GetExpression(op, "", subExpr...)
+		where, err = clause.GetExpression(op, "", subExpr...)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -280,7 +280,7 @@ func (d *dsl) query(query Query) (clause.Expression, error) {
 
 	for op, field := range query {
 		for name, value := range field {
-			return d.clause.GetExpression(op, name, Disintegration(value)...)
+			return clause.GetExpression(op, name, Disintegration(value)...)
 		}
 	}
 	return nil, fmt.Errorf("query must have one")
