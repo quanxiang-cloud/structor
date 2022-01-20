@@ -76,9 +76,11 @@ func (r *RANGE) Build(builder clause.Builder) {
 					builder.WriteQuoted(" and ")
 				}
 
-				subBuilder := clause.GetExpressions()[k]()
-				subBuilder.Set(r.Column, v)
-				subBuilder.Build(builder)
+				subExpr, err := clause.GetExpression(k, r.Column, v)
+				if err != nil {
+					continue
+				}
+				subExpr.Build(builder)
 				count++
 			}
 		}
