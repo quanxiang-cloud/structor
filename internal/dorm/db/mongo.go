@@ -38,7 +38,7 @@ func init() {
 	flag.StringVar(&database, "mongo-database", "", "Database name.")
 
 	// expressions
-	clause.SetExpressions(map[string]clause.Expr{
+	clause.SetDmlExpressions(map[string]clause.Expr{
 		(&Terms{}).GetTag(): terms,
 		(&Match{}).GetTag(): match,
 		(&Term{}).GetTag():  term,

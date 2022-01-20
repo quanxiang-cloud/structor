@@ -74,9 +74,11 @@ func (r *RANGE) Build(builder clause.Builder) {
 		if val, ok := r.Vars[0].(map[string]interface{}); ok {
 			vars := make([]interface{}, 0, len(r.Vars))
 			for k, v := range val {
-				subBuilder := clause.GetExpressions()[k]()
-				subBuilder.Set(r.Column, v)
-				subBuilder.Build(builder)
+				subExpr, err := clause.GetDmlExpression(k, r.Column, v)
+				if err != nil {
+					continue
+				}
+				subExpr.Build(builder)
 				vars = append(vars, builder.GetVar())
 			}
 			builder.WriteString("$and")
