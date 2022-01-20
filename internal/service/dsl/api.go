@@ -45,7 +45,7 @@ func WithDB(db *db.Dorm) Option {
 	}
 }
 
-const suffix = "clause"
+const suffix = "_c"
 
 type APIOption func(...interface{}) error
 
@@ -53,25 +53,33 @@ func WithMarshal() APIOption {
 	return func(entities ...interface{}) error {
 		for _, entity := range entities {
 			ek := reflect.TypeOf(entity).Kind()
-			if ek != reflect.Map {
-				return fmt.Errorf("invalid entity type: %s", ek)
-			}
-			iter := reflect.ValueOf(entity).MapRange()
-			for iter.Next() {
-				if !iter.Value().CanInterface() {
+
+			switch ek {
+			case reflect.Ptr:
+				data := reflect.ValueOf(entity).Elem()
+				if !data.CanInterface() {
 					continue
 				}
 
-				if !strings.HasSuffix(iter.Key().String(), suffix) {
-					continue
-				}
+				return WithMarshal()(data.Interface())
+			case reflect.Map:
+				iter := reflect.ValueOf(entity).MapRange()
+				for iter.Next() {
+					if !iter.Value().CanInterface() {
+						continue
+					}
 
-				buf, err := json.Marshal(iter.Value().Interface())
-				if err != nil {
-					return err
-				}
-				reflect.ValueOf(entity).SetMapIndex(iter.Key(), reflect.ValueOf(string(buf)))
+					if !strings.HasSuffix(iter.Key().String(), suffix) {
+						continue
+					}
 
+					buf, err := json.Marshal(iter.Value().Interface())
+					if err != nil {
+						return err
+					}
+
+					reflect.ValueOf(entity).SetMapIndex(iter.Key(), reflect.ValueOf(string(buf)))
+				}
 			}
 		}
 		return nil
@@ -79,29 +87,36 @@ func WithMarshal() APIOption {
 }
 
 func WithUnmarshal() APIOption {
-	return func(datas ...interface{}) error {
-		for _, data := range datas {
-			dk := reflect.TypeOf(data).Kind()
-			if dk != reflect.Map {
-				return fmt.Errorf("invalid entity type: %s", dk)
-			}
-			iter := reflect.ValueOf(data).MapRange()
-			for iter.Next() {
-				if !iter.Value().CanInterface() {
+	return func(entities ...interface{}) error {
+		for _, entity := range entities {
+			ek := reflect.TypeOf(entity).Kind()
+
+			switch ek {
+			case reflect.Ptr:
+				data := reflect.ValueOf(entity).Elem()
+				if !data.CanInterface() {
 					continue
 				}
 
-				if !strings.HasSuffix(iter.Key().String(), suffix) {
-					continue
-				}
+				return WithUnmarshal()(data.Interface())
+			case reflect.Map:
+				iter := reflect.ValueOf(entity).MapRange()
+				for iter.Next() {
+					if !iter.Value().CanInterface() {
+						continue
+					}
 
-				var value interface{}
-				err := json.Unmarshal([]byte(iter.Value().Elem().String()), &value)
-				if err != nil {
-					return err
-				}
-				reflect.ValueOf(data).SetMapIndex(iter.Key(), reflect.ValueOf(value))
+					if !strings.HasSuffix(iter.Key().String(), suffix) {
+						continue
+					}
 
+					buf, err := json.Marshal(iter.Value().Interface())
+					if err != nil {
+						return err
+					}
+
+					reflect.ValueOf(entity).SetMapIndex(iter.Key(), reflect.ValueOf(string(buf)))
+				}
 			}
 		}
 		return nil
