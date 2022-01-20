@@ -76,7 +76,7 @@ func (r *RANGE) Build(builder clause.Builder) {
 					builder.WriteQuoted(" and ")
 				}
 
-				subExpr, err := clause.GetExpression(k, r.Column, v)
+				subExpr, err := clause.GetDmlExpression(k, r.Column, v)
 				if err != nil {
 					continue
 				}

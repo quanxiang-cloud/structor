@@ -4,32 +4,6 @@ import (
 	"errors"
 )
 
-// Writer write
-type Writer interface {
-	WriteByte(byte) error
-	WriteString(string) (int, error)
-}
-
-// QueryBuilder db condition builder
-type QueryBuilder interface {
-	Writer
-	WriteQuoted(field string)
-	AddVar(value interface{})
-	GetVar() interface{}
-}
-
-// AggBuilder AggBuilder
-type AggBuilder interface {
-	WriteQuotedAgg(field string)
-	AddAggVar(key string, value interface{})
-}
-
-//Builder Builder
-type Builder interface {
-	QueryBuilder
-	AggBuilder
-}
-
 var (
 	// ErrNoExpression no expression
 	ErrNoExpression = errors.New("no expression like this")
@@ -37,30 +11,19 @@ var (
 
 type Expr func() Expression
 
-var expressions map[string]Expr
+var dmlExprs map[string]Expr
 
-var ddlExprs map[string]Expr
-
-func SetExpressions(es map[string]Expr) {
-	expressions = es
+func SetDmlExpressions(es map[string]Expr) {
+	dmlExprs = es
 }
 
-func getExpressions() map[string]Expr {
-	return expressions
+func getDmlExpressions() map[string]Expr {
+	return dmlExprs
 }
 
-// Clause expressions set
-type Clause struct {
-}
-
-// New new a clause
-func New() *Clause {
-	return &Clause{}
-}
-
-// GetExpression get expression with op
-func GetExpression(op string, column string, values ...interface{}) (Expression, error) {
-	exprs := getExpressions()
+// GetDmlExpression get dml expression with op
+func GetDmlExpression(op string, column string, values ...interface{}) (Expression, error) {
+	exprs := getDmlExpressions()
 	if exprs == nil {
 		return nil, ErrNoExpression
 	}
@@ -74,3 +37,5 @@ func GetExpression(op string, column string, values ...interface{}) (Expression,
 	expression.Set(column, values...)
 	return expression, nil
 }
+
+var ddlExprs map[string]Expr

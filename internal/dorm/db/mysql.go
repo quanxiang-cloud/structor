@@ -43,7 +43,7 @@ func init() {
 	flag.IntVar(&maxIdleConns, "mysql-maxIdleConns", 10, "The maximum number of connections in the idle connection pool. default 10")
 	flag.IntVar(&maxOpenConns, "mysql-maxOpenConns", 20, "The maximum number of open connections to the database. default 20")
 
-	clause.SetExpressions(map[string]clause.Expr{
+	clause.SetDmlExpressions(map[string]clause.Expr{
 		(&Terms{}).GetTag(): terms,
 		(&Match{}).GetTag(): match,
 		(&Term{}).GetTag():  term,

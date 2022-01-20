@@ -74,7 +74,7 @@ func (r *RANGE) Build(builder clause.Builder) {
 		if val, ok := r.Vars[0].(map[string]interface{}); ok {
 			vars := make([]interface{}, 0, len(r.Vars))
 			for k, v := range val {
-				subExpr, err := clause.GetExpression(k, r.Column, v)
+				subExpr, err := clause.GetDmlExpression(k, r.Column, v)
 				if err != nil {
 					continue
 				}
