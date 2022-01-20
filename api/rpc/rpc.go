@@ -12,7 +12,8 @@ import (
 type Server struct {
 	*grpc.Server
 
-	dsl pb.DSLServiceServer
+	dsl    pb.DSLServiceServer
+	suffix string
 }
 
 func New(ctx context.Context) (*Server, error) {

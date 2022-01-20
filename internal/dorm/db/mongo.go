@@ -14,9 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var (
-	_ clause.Builder = &MONGO{}
-)
+var _ clause.Builder = &MONGO{}
 
 var (
 	host          string
@@ -89,7 +87,6 @@ func New() (*Dorm, error) {
 	conf.Credential.PasswordSet = passwordSet
 
 	client, err := mgc.New(conf)
-
 	if err != nil {
 		return nil, err
 	}
@@ -105,10 +102,12 @@ func (d *Dorm) Table(tablename string) *Dorm {
 		opt:     new(options.FindOptions),
 	}
 }
+
 func (d *Dorm) Where(expr clause.Expression) *Dorm {
 	expr.Build(d.builder)
 	return d
 }
+
 func (d *Dorm) Select(exprs ...clause.Expression) *Dorm {
 	bsons := make([]bson.M, 0)
 	if vars := d.builder.Vars; len(vars) != 0 {
@@ -126,14 +125,17 @@ func (d *Dorm) Select(exprs ...clause.Expression) *Dorm {
 	})
 	return d
 }
+
 func (d *Dorm) Limit(limit int64) *Dorm {
 	d.opt = d.opt.SetLimit(limit)
 	return d
 }
+
 func (d *Dorm) Offset(offset int64) *Dorm {
 	d.opt = d.opt.SetSkip(offset)
 	return d
 }
+
 func (d *Dorm) Order(arr ...string) *Dorm {
 	sort := make(bson.D, 0, len(arr))
 	for _, elem := range arr {
@@ -191,7 +193,7 @@ func (d *Dorm) agg(ctx context.Context) ([]map[string]interface{}, error) {
 func (d *Dorm) FindOne(ctx context.Context) (map[string]interface{}, error) {
 	singleResult := d.C.FindOne(ctx, d.builder.Vars)
 
-	var result = make(map[string]interface{})
+	result := make(map[string]interface{})
 	err := singleResult.Decode(&result)
 	if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
 		return nil, nil
@@ -211,10 +213,12 @@ func (d *Dorm) Find(ctx context.Context) ([]map[string]interface{}, error) {
 func (d *Dorm) Count(ctx context.Context) (int64, error) {
 	return d.C.CountDocuments(ctx, d.builder.Vars)
 }
+
 func (d *Dorm) Insert(ctx context.Context, entities ...interface{}) (int64, error) {
 	ret, err := d.C.InsertMany(ctx, entities)
 	return int64(len(ret.InsertedIDs)), err
 }
+
 func (d *Dorm) Update(ctx context.Context, entity interface{}) (int64, error) {
 	result, err := d.C.UpdateMany(ctx, d.builder.Vars,
 		bson.M{
@@ -223,6 +227,7 @@ func (d *Dorm) Update(ctx context.Context, entity interface{}) (int64, error) {
 	)
 	return result.ModifiedCount, err
 }
+
 func (d *Dorm) Delete(ctx context.Context) (int64, error) {
 	result, err := d.C.DeleteMany(ctx, d.builder.Vars)
 	return result.DeletedCount, err
