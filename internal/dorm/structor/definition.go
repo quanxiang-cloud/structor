@@ -35,7 +35,7 @@ type Fields []Field
 func (fs Fields) Convert() string {
 	builder := bytes.Buffer{}
 	for index, f := range fs {
-		builder.WriteString(fmt.Sprintf(" %s %s ", f.Title, f.Type))
+		builder.WriteString(fmt.Sprintf(" `%s` %s ", f.Title, f.Type))
 		if f.NotNull {
 			builder.WriteString(" NOT NULL ")
 		}
