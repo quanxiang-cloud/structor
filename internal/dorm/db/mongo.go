@@ -8,7 +8,9 @@ import (
 	"strings"
 
 	mgc "github.com/quanxiang-cloud/cabin/tailormade/db/mongo"
+	"github.com/quanxiang-cloud/structor/internal/dorm"
 	"github.com/quanxiang-cloud/structor/internal/dorm/clause"
+	"github.com/quanxiang-cloud/structor/internal/dorm/structor"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -56,6 +58,12 @@ func init() {
 		(&Avg{}).GetTag(): avg,
 		(&Min{}).GetTag(): min,
 		(&Max{}).GetTag(): max,
+	})
+
+	structor.SetDdlConstructors(map[string]structor.Expr{
+		(&Create{}).GetTag: create,
+		(&Add{}).GetTag:    add,
+		(&Modify{}).GetTag: modify,
 	})
 }
 
@@ -233,6 +241,16 @@ func (d *Dorm) Delete(ctx context.Context) (int64, error) {
 	return result.DeletedCount, err
 }
 
+func (d *Dorm) Build(expr structor.Constructor) dorm.Dept {
+	// do nothing
+	return d
+}
+
+func (d *Dorm) Exec(context.Context) error {
+	// do nothing
+	return nil
+}
+
 // MONGO mongo
 type MONGO struct {
 	Vars bson.M
@@ -286,4 +304,8 @@ func (m *MONGO) AddAggVar(key string, value interface{}) {
 		}
 	}
 	m.Agg[key] = value
+}
+
+func (m *MONGO) WriteRaw(string) {
+	// do nothing
 }

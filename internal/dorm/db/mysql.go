@@ -13,6 +13,7 @@ import (
 	msc "github.com/quanxiang-cloud/cabin/tailormade/db/mysql"
 	"github.com/quanxiang-cloud/structor/internal/dorm"
 	"github.com/quanxiang-cloud/structor/internal/dorm/clause"
+	"github.com/quanxiang-cloud/structor/internal/dorm/structor"
 	"gorm.io/gorm"
 )
 
@@ -31,6 +32,10 @@ var (
 
 	maxIdleConns int
 	maxOpenConns int
+
+	engine  string
+	charset string
+	collate string
 )
 
 func init() {
@@ -42,6 +47,9 @@ func init() {
 	flag.IntVar(&logLevel, "mysql-log-level", -1, "The log level. it cannot be make if disable log. Level options: -1 debug, 0 info, 1 warn, 2 error, 3 dPanic, 4 panic, 5 fatal. Default log level is debugLevel")
 	flag.IntVar(&maxIdleConns, "mysql-maxIdleConns", 10, "The maximum number of connections in the idle connection pool. default 10")
 	flag.IntVar(&maxOpenConns, "mysql-maxOpenConns", 20, "The maximum number of open connections to the database. default 20")
+	flag.StringVar(&engine, "mysql-engine", "InnoDB", "default innoDB")
+	flag.StringVar(&charset, "mysql-charset", "utf8", "default utf8")
+	flag.StringVar(&collate, "mysql-collate", "utf8_unicode_ci", "default utf8_unicode_ci")
 
 	clause.SetDmlExpressions(map[string]clause.Expr{
 		(&Terms{}).GetTag(): terms,
@@ -61,6 +69,12 @@ func init() {
 		(&Avg{}).GetTag(): avg,
 		(&Min{}).GetTag(): min,
 		(&Max{}).GetTag(): max,
+	})
+
+	structor.SetDdlConstructors(map[string]structor.Expr{
+		(&Create{}).GetTag(): create,
+		(&Add{}).GetTag():    add,
+		(&Modify{}).GetTag(): modify,
 	})
 }
 
@@ -199,11 +213,29 @@ func (d *Dorm) Delete(ctx context.Context) (int64, error) {
 	return affected, nil
 }
 
+func (d *Dorm) Build(expr structor.Constructor) dorm.Dept {
+	builder := &MYSQL{
+		raw: bytes.Buffer{},
+	}
+
+	dorm := &Dorm{
+		db:      d.db,
+		builder: builder,
+	}
+	expr.Build(dorm.builder)
+	return dorm
+}
+
+func (d *Dorm) Exec(ctx context.Context) error {
+	return d.db.Exec(d.builder.raw.String()).Error
+}
+
 type MYSQL struct {
 	table string
 
 	val *ConditionVal
 	agg bytes.Buffer
+	raw bytes.Buffer
 }
 
 type ConditionVal struct {
@@ -242,4 +274,8 @@ func (m *MYSQL) AddAggVar(key string, value interface{}) {
 		m.agg.WriteString(", ")
 	}
 	m.agg.WriteString(fmt.Sprintf("%s %s", value, key))
+}
+
+func (m *MYSQL) WriteRaw(s string) {
+	m.raw.WriteString(s)
 }
