@@ -167,7 +167,8 @@ type FindReq struct {
 }
 
 type FindResp struct {
-	Data []interface{}
+	Data  []interface{}
+	Count int64
 }
 
 func (d *dsl) Find(ctx context.Context, req *FindReq, apiOpts ...APIOption) (*FindResp, error) {
@@ -203,7 +204,8 @@ func (d *dsl) Find(ctx context.Context, req *FindReq, apiOpts ...APIOption) (*Fi
 	}
 
 	return &FindResp{
-		Data: dl,
+		Data:  dl,
+		Count: int64(len(dl)),
 	}, nil
 }
 

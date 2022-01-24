@@ -79,6 +79,7 @@ func (s *service) Find(ctx context.Context, req *pb.FindReq) (*pb.FindResp, erro
 
 	resp := &pb.FindResp{}
 	resp.Data = &anypb.Any{}
+	resp.Count = result.Count
 	err = resp.Data.MarshalFrom(out)
 	return resp, err
 }
