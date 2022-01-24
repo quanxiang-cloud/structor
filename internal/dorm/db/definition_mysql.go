@@ -31,7 +31,9 @@ func add() structor.Constructor {
 }
 
 func (a *Add) Build(builder structor.Builder) {
-	// TODO:
+	builder.WriteRaw(fmt.Sprintf("ALTER TABLE %s ADD COLUMN ", a.Column))
+	builder.WriteRaw(a.Values.Convert())
+	builder.WriteRaw(";")
 }
 
 type Modify struct {
@@ -43,5 +45,7 @@ func modify() structor.Constructor {
 }
 
 func (m *Modify) Build(builder structor.Builder) {
-	// TODO:
+	builder.WriteRaw(fmt.Sprintf("ALTER TABLE %s MODIFY COLUMN ", m.Column))
+	builder.WriteRaw(m.Values.Convert())
+	builder.WriteRaw(";")
 }
