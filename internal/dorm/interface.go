@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/quanxiang-cloud/structor/internal/dorm/clause"
+	"github.com/quanxiang-cloud/structor/internal/dorm/structor"
 )
 
 // Dorm dorm
@@ -20,4 +21,9 @@ type Dorm interface {
 	Insert(ctx context.Context, entities ...interface{}) (int64, error)
 	Update(ctx context.Context, entity interface{}) (int64, error)
 	Delete(ctx context.Context) (int64, error)
+}
+
+type Dept interface {
+	Build(expr structor.Constructor) Dept
+	Exec(ctx context.Context) error
 }

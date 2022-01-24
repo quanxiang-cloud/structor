@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/quanxiang-cloud/structor/internal/dorm"
 	"github.com/quanxiang-cloud/structor/internal/dorm/clause"
-	"github.com/quanxiang-cloud/structor/internal/dorm/db"
 )
 
 type DSLService interface {
@@ -21,7 +21,7 @@ type DSLService interface {
 }
 
 type dsl struct {
-	db *db.Dorm
+	db dorm.Dorm
 }
 
 func New(ctx context.Context, opts ...Option) DSLService {
@@ -35,7 +35,7 @@ func New(ctx context.Context, opts ...Option) DSLService {
 
 type Option func(*dsl)
 
-func WithDB(db *db.Dorm) Option {
+func WithDB(db dorm.Dorm) Option {
 	return func(d *dsl) {
 		d.db = db
 	}

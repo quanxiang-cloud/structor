@@ -1,0 +1,23 @@
+syntax = "proto3";
+package proto;
+
+message ExecuteReq{
+    string tableName = 1;
+    string option = 2;
+    repeated Field fields = 3;
+}
+
+message ExecuteResp{
+    string tableName = 1;
+}
+
+message Field{
+    string title = 1;
+    string type = 2;
+    string comment = 3;
+    bool notNull = 4;
+}
+
+service DDLService{
+    rpc Execute(ExecuteReq)returns(ExecuteResp);
+}
