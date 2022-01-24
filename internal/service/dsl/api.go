@@ -106,12 +106,13 @@ func WithUnmarshal() APIOption {
 						continue
 					}
 
-					buf, err := json.Marshal(iter.Value().Interface())
+					var elem interface{}
+					err := json.Unmarshal([]byte(iter.Value().Elem().String()), &elem)
 					if err != nil {
 						return err
 					}
 
-					reflect.ValueOf(entity).SetMapIndex(iter.Key(), reflect.ValueOf(string(buf)))
+					reflect.ValueOf(entity).SetMapIndex(iter.Key(), reflect.ValueOf(elem))
 				}
 			}
 		}
