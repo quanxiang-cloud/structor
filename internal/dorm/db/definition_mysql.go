@@ -17,7 +17,7 @@ func create() structor.Constructor {
 }
 
 func (c *Create) Build(builder structor.Builder) {
-	builder.WriteRaw(fmt.Sprintf(" CREATE TABLE %s ( ", c.Column))
+	builder.WriteRaw(fmt.Sprintf(" CREATE TABLE `%s` ( ", c.Column))
 	builder.WriteRaw(c.Values.Convert())
 	builder.WriteRaw(fmt.Sprintf(") ENGINE=%s DEFAULT CHARSET=%s COLLATE=%s;", engine, charset, collate))
 }
@@ -31,7 +31,7 @@ func add() structor.Constructor {
 }
 
 func (a *Add) Build(builder structor.Builder) {
-	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE %s ADD COLUMN ", a.Column))
+	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` ADD COLUMN ", a.Column))
 	builder.WriteRaw(a.Values.Convert())
 	builder.WriteRaw(";")
 }
@@ -45,7 +45,7 @@ func modify() structor.Constructor {
 }
 
 func (m *Modify) Build(builder structor.Builder) {
-	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE %s MODIFY COLUMN ", m.Column))
+	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` MODIFY COLUMN ", m.Column))
 	builder.WriteRaw(m.Values.Convert())
 	builder.WriteRaw(";")
 }
