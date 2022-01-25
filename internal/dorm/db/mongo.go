@@ -61,9 +61,9 @@ func init() {
 	})
 
 	structor.SetDdlConstructors(map[string]structor.Expr{
-		(&Create{}).GetTag: create,
-		(&Add{}).GetTag:    add,
-		(&Modify{}).GetTag: modify,
+		(&Create{}).GetTag(): create,
+		(&Add{}).GetTag():    add,
+		(&Modify{}).GetTag(): modify,
 	})
 }
 
@@ -103,7 +103,7 @@ func New() (*Dorm, error) {
 	}, nil
 }
 
-func (d *Dorm) Table(tablename string) *Dorm {
+func (d *Dorm) Table(tablename string) dorm.Dorm {
 	return &Dorm{
 		C:       d.db.Collection(tablename),
 		builder: new(MONGO),
@@ -111,12 +111,12 @@ func (d *Dorm) Table(tablename string) *Dorm {
 	}
 }
 
-func (d *Dorm) Where(expr clause.Expression) *Dorm {
+func (d *Dorm) Where(expr clause.Expression) dorm.Dorm {
 	expr.Build(d.builder)
 	return d
 }
 
-func (d *Dorm) Select(exprs ...clause.Expression) *Dorm {
+func (d *Dorm) Select(exprs ...clause.Expression) dorm.Dorm {
 	bsons := make([]bson.M, 0)
 	if vars := d.builder.Vars; len(vars) != 0 {
 		bsons = append(bsons, bson.M{"$match": vars})
@@ -134,17 +134,17 @@ func (d *Dorm) Select(exprs ...clause.Expression) *Dorm {
 	return d
 }
 
-func (d *Dorm) Limit(limit int64) *Dorm {
+func (d *Dorm) Limit(limit int64) dorm.Dorm {
 	d.opt = d.opt.SetLimit(limit)
 	return d
 }
 
-func (d *Dorm) Offset(offset int64) *Dorm {
+func (d *Dorm) Offset(offset int64) dorm.Dorm {
 	d.opt = d.opt.SetSkip(offset)
 	return d
 }
 
-func (d *Dorm) Order(arr ...string) *Dorm {
+func (d *Dorm) Order(arr ...string) dorm.Dorm {
 	sort := make(bson.D, 0, len(arr))
 	for _, elem := range arr {
 		if strings.HasPrefix(elem, "-") {
