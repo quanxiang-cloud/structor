@@ -75,6 +75,8 @@ func init() {
 		(&Create{}).GetTag(): create,
 		(&Add{}).GetTag():    add,
 		(&Modify{}).GetTag(): modify,
+		(&Index{}).GetTag():  index,
+		(&Unique{}).GetTag(): unique,
 	})
 }
 
@@ -213,7 +215,7 @@ func (d *Dorm) Delete(ctx context.Context) (int64, error) {
 	return affected, nil
 }
 
-func (d *Dorm) Build(expr structor.Constructor) dorm.Dept {
+func (d *Dorm) Build(table string, expr structor.Constructor) dorm.Dept {
 	builder := &MYSQL{
 		raw: bytes.Buffer{},
 	}
@@ -222,12 +224,17 @@ func (d *Dorm) Build(expr structor.Constructor) dorm.Dept {
 		db:      d.db,
 		builder: builder,
 	}
-	expr.Build(dorm.builder)
+	expr.Build(table, dorm.builder)
 	return dorm
 }
 
 func (d *Dorm) Exec(ctx context.Context) error {
+	fmt.Println(d.builder.raw.String())
 	return d.db.Exec(d.builder.raw.String()).Error
+}
+
+func (d *Dorm) Index(ctx context.Context, name string) error {
+	return d.Exec(ctx)
 }
 
 type MYSQL struct {
@@ -278,4 +285,9 @@ func (m *MYSQL) AddAggVar(key string, value interface{}) {
 
 func (m *MYSQL) WriteRaw(s string) {
 	m.raw.WriteString(s)
+}
+
+func (m *MYSQL) Unique(unique bool) {
+	// nothing to do
+	return
 }

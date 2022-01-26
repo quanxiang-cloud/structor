@@ -3,5 +3,5 @@ package structor
 type Constructor interface {
 	Set(table string, values ...*Field)
 
-	Build(builder Builder)
+	Build(table string, builder Builder)
 }

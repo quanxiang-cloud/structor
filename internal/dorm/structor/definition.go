@@ -34,6 +34,27 @@ func (fs Fields) Convert(dialector Dialector) string {
 	return builder.String()
 }
 
+func (fs Fields) ConvertIndex() string {
+	builder := bytes.Buffer{}
+	for index, f := range fs {
+		builder.WriteString(fmt.Sprintf(" `%s` ", f.Title))
+		if index != len(fs)-1 {
+			builder.WriteString(",")
+		}
+	}
+	return builder.String()
+}
+
+func (fs Fields) GenIndexName(indexType string) string {
+	var builder bytes.Buffer
+	builder.WriteString(fmt.Sprintf("%s_", indexType))
+	for _, f := range fs {
+		builder.WriteString(f.Title[:1])
+	}
+
+	return builder.String()
+}
+
 type Create struct {
 	Column string
 	Values Fields
@@ -101,3 +122,43 @@ func (u *Modify) Set(column string, values ...*Field) {
 	u.Column = column
 	u.Values = values
 }
+
+// ALTER TABLE `table_name` ADD INDEX (`column`);
+
+// db.collection.createIndex({"name": 1},{unique: true});
+
+type Index struct {
+	Column   string
+	Values   Fields
+	IsUnique bool
+}
+
+func (i *Index) GetTag() string {
+	return "index"
+}
+
+func (i *Index) Set(column string, values ...Field) {
+	i.Column = column
+	i.Values = values
+}
+
+// ALTER TABLE table_name ADD UNIQUE (column_list)
+
+// ALTER TABLE table_name ADD PRIMARY KEY (column_list)
+type Unique struct {
+	Column   string
+	Values   Fields
+	IsUnique bool
+}
+
+func (u *Unique) GetTag() string {
+	return "unique"
+}
+
+func (u *Unique) Set(column string, values ...Field) {
+	u.Column = column
+	u.Values = values
+	u.IsUnique = true
+}
+
+// ALTER TABLE table_name DROP INDEX index_name

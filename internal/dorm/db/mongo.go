@@ -5,6 +5,7 @@ package db
 import (
 	"context"
 	"flag"
+	"fmt"
 	"strings"
 
 	mgc "github.com/quanxiang-cloud/cabin/tailormade/db/mongo"
@@ -64,6 +65,8 @@ func init() {
 		(&Create{}).GetTag(): create,
 		(&Add{}).GetTag():    add,
 		(&Modify{}).GetTag(): modify,
+		(&Index{}).GetTag():  index,
+		(&Unique{}).GetTag(): unique,
 	})
 }
 
@@ -241,9 +244,13 @@ func (d *Dorm) Delete(ctx context.Context) (int64, error) {
 	return result.DeletedCount, err
 }
 
-func (d *Dorm) Build(expr structor.Constructor) dorm.Dept {
-	// do nothing
-	return d
+func (d *Dorm) Build(table string, expr structor.Constructor) dorm.Dept {
+	dorm := &Dorm{
+		C:       d.db.Collection(table),
+		builder: new(MONGO),
+	}
+	expr.Build(table, dorm.builder)
+	return dorm
 }
 
 func (d *Dorm) Exec(context.Context) error {
@@ -251,10 +258,27 @@ func (d *Dorm) Exec(context.Context) error {
 	return nil
 }
 
+func (d *Dorm) Index(ctx context.Context, name string) error {
+	// d.builder.WriteRaw()
+	// fmt.Println(d.builder.IndexModel)
+	strs, err := d.C.Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys:    d.builder.Keys,
+		Options: options.Index().SetName(name).SetUnique(d.builder.IsUnique),
+	})
+
+	fmt.Println(strs)
+	// d.C.Indexes().CreateMany(ctx, d.builder.IndexModel)
+
+	// d.C.Indexes().CreateMany(ctx, models []mongo.IndexModel, opts ...*options.CreateIndexesOptions)
+	return err
+}
+
 // MONGO mongo
 type MONGO struct {
-	Vars bson.M
-	Agg  bson.M
+	Vars     bson.M
+	Agg      bson.M
+	Keys     bson.D
+	IsUnique bool
 }
 
 // WriteString write string
@@ -306,6 +330,10 @@ func (m *MONGO) AddAggVar(key string, value interface{}) {
 	m.Agg[key] = value
 }
 
-func (m *MONGO) WriteRaw(string) {
-	// do nothing
+func (m *MONGO) WriteRaw(field string) {
+	m.Keys = append(m.Keys, bson.E{field, 1})
+}
+
+func (m *MONGO) Unique(unique bool) {
+	m.IsUnique = unique
 }
