@@ -16,7 +16,7 @@ func getDdlConstructors() map[string]Expr {
 	return ddlExprs
 }
 
-func GetDdlConstructor(op string, column string, values ...Field) (Constructor, error) {
+func GetDdlConstructor(op string, column string, values ...*Field) (Constructor, error) {
 	exprs := getDdlConstructors()
 	if exprs == nil {
 		return nil, errors.ErrNoConstructor
@@ -26,6 +26,8 @@ func GetDdlConstructor(op string, column string, values ...Field) (Constructor, 
 	if !ok {
 		return nil, errors.ErrNoConstructor
 	}
+
+	// TODO: check validity of field type
 
 	constructor := expr()
 	constructor.Set(column, values...)
