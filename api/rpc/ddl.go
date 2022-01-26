@@ -33,12 +33,13 @@ func (d *ddlService) Execute(ctx context.Context, req *pb.ExecuteReq) (*pb.Execu
 	}, nil
 }
 
-func transform(fields []*pb.Field) []structor.Field {
-	ret := make([]structor.Field, 0, len(fields))
+func transform(fields []*pb.Field) []*structor.Field {
+	ret := make([]*structor.Field, 0, len(fields))
 	for _, f := range fields {
-		ret = append(ret, structor.Field{
+		ret = append(ret, &structor.Field{
 			Title:   f.Title,
 			Type:    f.Type,
+			Max:     f.Max,
 			Comment: f.Comment,
 			NotNull: f.NotNull,
 		})

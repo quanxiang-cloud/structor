@@ -37,7 +37,7 @@ func WithDB(db dorm.Dept) Option {
 type ExecuteReq struct {
 	Option string
 	Table  string
-	Fields []Field
+	Fields []*Field
 }
 
 type ExecuteResp struct {
@@ -60,6 +60,6 @@ func (d *ddl) Execute(ctx context.Context, req *ExecuteReq) (*ExecuteResp, error
 	}, nil
 }
 
-func convert(op string, table string, values ...Field) (structor.Constructor, error) {
+func convert(op string, table string, values ...*Field) (structor.Constructor, error) {
 	return structor.GetDdlConstructor(op, table, values...)
 }
