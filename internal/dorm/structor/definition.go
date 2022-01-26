@@ -5,34 +5,18 @@ import (
 	"fmt"
 )
 
-// CREATE TABLE table_name {
-// 	id 			varchar(64) primary key,
-// 	field1 		xxxx_type,
-// 	field2 		xxxx_type	not null,
-// 	field3  	xxxx_type	comment "description",
-// 	create_at	bigint		default 0,
-// 	update_at	bigint		default 0,
-// 	delete_at	bigint		default 0
-// } ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-// DROP TABLE XXX;
-
-// ALTER TABLE XXX ADD COLUMN field xxxx_type NOT NULL COMMENT 'description' AFTER field1;
-
-// ALTER TABLE XXX MODIFY COLUMN field xxxx_type NOT NULL COMMENT 'description' AFTER field2;
-
-// ALTER TABLE XXX DROP COLUMN field;
-
 type Field struct {
 	Title   string
 	Type    string
+	Length  int
+	Decimal int
 	Comment string
 	NotNull bool
 }
 
-type Fields []Field
+type Fields []*Field
 
-func (fs Fields) Convert() string {
+func (fs Fields) Convert(dialect ...func(*Field) string) string {
 	builder := bytes.Buffer{}
 	for index, f := range fs {
 		builder.WriteString(fmt.Sprintf(" `%s` %s ", f.Title, f.Type))
@@ -58,7 +42,7 @@ func (c *Create) GetTag() string {
 	return "create"
 }
 
-func (c *Create) Set(column string, values ...Field) {
+func (c *Create) Set(column string, values ...*Field) {
 	c.Column = column
 	c.Values = values
 }
@@ -71,7 +55,7 @@ func (d *Drop) GetTag() string {
 	return "drop"
 }
 
-func (d *Drop) Set(column string, values ...Field) {
+func (d *Drop) Set(column string, values ...*Field) {
 	d.Column = column
 }
 
@@ -84,7 +68,7 @@ func (a *Add) GetTag() string {
 	return "add"
 }
 
-func (a *Add) Set(column string, values ...Field) {
+func (a *Add) Set(column string, values ...*Field) {
 	a.Column = column
 	a.Values = values
 }
@@ -98,7 +82,7 @@ func (d *Del) GetTag() string {
 	return "del"
 }
 
-func (d *Del) Set(column string, values ...Field) {
+func (d *Del) Set(column string, values ...*Field) {
 	d.Column = column
 	d.Values = values
 }
@@ -112,7 +96,7 @@ func (u *Modify) GetTag() string {
 	return "modify"
 }
 
-func (u *Modify) Set(column string, values ...Field) {
+func (u *Modify) Set(column string, values ...*Field) {
 	u.Column = column
 	u.Values = values
 }
