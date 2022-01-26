@@ -14,8 +14,9 @@ message ExecuteResp{
 message Field{
     string title = 1;
     string type = 2;
-    string comment = 3;
-    bool notNull = 4;
+    int64 max = 3;
+    string comment = 4;
+    bool notNull = 5;
 }
 
 service DDLService{

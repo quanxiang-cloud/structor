@@ -39,6 +39,7 @@ func transform(fields []*pb.Field) []*structor.Field {
 		ret = append(ret, &structor.Field{
 			Title:   f.Title,
 			Type:    f.Type,
+			Max:     f.Max,
 			Comment: f.Comment,
 			NotNull: f.NotNull,
 		})
