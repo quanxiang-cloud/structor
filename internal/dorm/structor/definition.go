@@ -5,24 +5,6 @@ import (
 	"fmt"
 )
 
-// CREATE TABLE table_name {
-// 	id 			varchar(64) primary key,
-// 	field1 		xxxx_type,
-// 	field2 		xxxx_type	not null,
-// 	field3  	xxxx_type	comment "description",
-// 	create_at	bigint		default 0,
-// 	update_at	bigint		default 0,
-// 	delete_at	bigint		default 0
-// } ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-// DROP TABLE XXX;
-
-// ALTER TABLE XXX ADD COLUMN field xxxx_type NOT NULL COMMENT 'description' AFTER field1;
-
-// ALTER TABLE XXX MODIFY COLUMN field xxxx_type NOT NULL COMMENT 'description' AFTER field2;
-
-// ALTER TABLE XXX DROP COLUMN field;
-
 type Field struct {
 	Title   string
 	Type    string
@@ -46,6 +28,27 @@ func (fs Fields) Convert() string {
 			builder.WriteString(",")
 		}
 	}
+	return builder.String()
+}
+
+func (fs Fields) ConvertIndex() string {
+	builder := bytes.Buffer{}
+	for index, f := range fs {
+		builder.WriteString(fmt.Sprintf(" `%s` ", f.Title))
+		if index != len(fs)-1 {
+			builder.WriteString(",")
+		}
+	}
+	return builder.String()
+}
+
+func (fs Fields) GenIndexName(indexType string) string {
+	var builder bytes.Buffer
+	builder.WriteString(fmt.Sprintf("%s_", indexType))
+	for _, f := range fs {
+		builder.WriteString(f.Title[:1])
+	}
+
 	return builder.String()
 }
 
@@ -116,3 +119,43 @@ func (u *Modify) Set(column string, values ...Field) {
 	u.Column = column
 	u.Values = values
 }
+
+// ALTER TABLE `table_name` ADD INDEX (`column`);
+
+// db.collection.createIndex({"name": 1},{unique: true});
+
+type Index struct {
+	Column   string
+	Values   Fields
+	IsUnique bool
+}
+
+func (i *Index) GetTag() string {
+	return "index"
+}
+
+func (i *Index) Set(column string, values ...Field) {
+	i.Column = column
+	i.Values = values
+}
+
+// ALTER TABLE table_name ADD UNIQUE (column_list)
+
+// ALTER TABLE table_name ADD PRIMARY KEY (column_list)
+type Unique struct {
+	Column   string
+	Values   Fields
+	IsUnique bool
+}
+
+func (u *Unique) GetTag() string {
+	return "unique"
+}
+
+func (u *Unique) Set(column string, values ...Field) {
+	u.Column = column
+	u.Values = values
+	u.IsUnique = true
+}
+
+// ALTER TABLE table_name DROP INDEX index_name

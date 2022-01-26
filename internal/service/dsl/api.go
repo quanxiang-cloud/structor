@@ -129,6 +129,7 @@ type FindOneResp struct {
 	Data interface{}
 }
 
+// FIXME: How to find the structure compressed into flat layer
 func (d *dsl) FindOne(ctx context.Context, req *FindOneReq, apiOpts ...APIOption) (*FindOneResp, error) {
 	where, aggs, err := d.convert(req.DSL)
 	if err != nil {
@@ -171,6 +172,7 @@ type FindResp struct {
 	Count int64
 }
 
+// FIXME: How to find the structure compressed into flat layer
 func (d *dsl) Find(ctx context.Context, req *FindReq, apiOpts ...APIOption) (*FindResp, error) {
 	where, aggs, err := d.convert(req.DSL)
 	if err != nil {

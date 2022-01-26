@@ -33,6 +33,21 @@ func (d *ddlService) Execute(ctx context.Context, req *pb.ExecuteReq) (*pb.Execu
 	}, nil
 }
 
+func (d *ddlService) Indexes(ctx context.Context, req *pb.IndexesReq) (*pb.IndexesResp, error) {
+	resp, err := d.ddl.Index(ctx, &ddlservice.IndexReq{
+		Option: req.Option,
+		Table:  req.TableName,
+		Fields: transformIndex(req.Titles),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.IndexesResp{
+		IndexName: resp.Index,
+	}, nil
+
+}
+
 func transform(fields []*pb.Field) []structor.Field {
 	ret := make([]structor.Field, 0, len(fields))
 	for _, f := range fields {
@@ -41,6 +56,16 @@ func transform(fields []*pb.Field) []structor.Field {
 			Type:    f.Type,
 			Comment: f.Comment,
 			NotNull: f.NotNull,
+		})
+	}
+	return ret
+}
+
+func transformIndex(titles []string) []structor.Field {
+	ret := make([]structor.Field, 0, len(titles))
+	for _, title := range titles {
+		ret = append(ret, structor.Field{
+			Title: title,
 		})
 	}
 	return ret

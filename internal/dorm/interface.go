@@ -24,6 +24,7 @@ type Dorm interface {
 }
 
 type Dept interface {
-	Build(expr structor.Constructor) Dept
+	Build(table string, expr structor.Constructor) Dept
 	Exec(ctx context.Context) error
+	Index(ctx context.Context, name string) error
 }
