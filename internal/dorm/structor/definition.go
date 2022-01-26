@@ -137,7 +137,7 @@ func (i *Index) GetTag() string {
 	return "index"
 }
 
-func (i *Index) Set(column string, values ...Field) {
+func (i *Index) Set(column string, values ...*Field) {
 	i.Column = column
 	i.Values = values
 }
@@ -155,7 +155,7 @@ func (u *Unique) GetTag() string {
 	return "unique"
 }
 
-func (u *Unique) Set(column string, values ...Field) {
+func (u *Unique) Set(column string, values ...*Field) {
 	u.Column = column
 	u.Values = values
 	u.IsUnique = true
