@@ -29,6 +29,16 @@ message IndexesResp{
     string indexName = 1;
 }
 
+message IndexesReq{
+    string tableName = 1;
+    string option = 2;
+    repeated string titles = 3;
+}
+
+message IndexesResp{
+    string indexName = 1;
+}
+
 service DDLService{
     rpc Execute(ExecuteReq)returns(ExecuteResp);
     rpc Indexes(IndexesReq)returns(IndexesResp);
