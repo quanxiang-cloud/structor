@@ -8,18 +8,19 @@ import (
 type Field struct {
 	Title   string
 	Type    string
-	Length  int
-	Decimal int
+	Max     int64
 	Comment string
 	NotNull bool
 }
 
 type Fields []*Field
 
-func (fs Fields) Convert(dialect ...func(*Field) string) string {
+func (fs Fields) Convert(dialector Dialector) string {
+	dialectMgr.Register(dialector)
 	builder := bytes.Buffer{}
 	for index, f := range fs {
-		builder.WriteString(fmt.Sprintf(" `%s` %s ", f.Title, f.Type))
+		ds := dialectMgr.Transform(f)
+		builder.WriteString(fmt.Sprintf(" `%s` %s ", f.Title, ds(f)))
 		if f.NotNull {
 			builder.WriteString(" NOT NULL ")
 		}
