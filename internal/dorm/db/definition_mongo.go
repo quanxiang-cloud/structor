@@ -14,7 +14,7 @@ func create() structor.Constructor {
 	return &Create{}
 }
 
-func (c *Create) Build(builder structor.Builder) {
+func (c *Create) Build(table string, builder structor.Builder) {
 	// do nothing
 }
 
@@ -26,7 +26,7 @@ func drop() structor.Constructor {
 	return &Drop{}
 }
 
-func (d *Drop) Build(builder structor.Builder) {
+func (d *Drop) Build(table string, builder structor.Builder) {
 	// do nothing
 }
 
@@ -38,7 +38,7 @@ func add() structor.Constructor {
 	return &Add{}
 }
 
-func (a *Add) Build(builder structor.Builder) {
+func (a *Add) Build(table string, builder structor.Builder) {
 	// do nothing
 }
 
@@ -50,7 +50,7 @@ func del() structor.Constructor {
 	return &Del{}
 }
 
-func (d *Del) Build(builder structor.Builder) {
+func (d *Del) Build(table string, builder structor.Builder) {
 	// do nothing
 }
 
@@ -62,6 +62,35 @@ func modify() structor.Constructor {
 	return &Modify{}
 }
 
-func (m *Modify) Build(builder structor.Builder) {
+func (m *Modify) Build(table string, builder structor.Builder) {
 	// do nothing
+}
+
+type Index struct {
+	structor.Index
+}
+
+func index() structor.Constructor {
+	return &Index{}
+}
+
+func (i *Index) Build(table string, builder structor.Builder) {
+	for _, value := range i.Values {
+		builder.WriteRaw(value.Title)
+	}
+}
+
+type Unique struct {
+	structor.Unique
+}
+
+func unique() structor.Constructor {
+	return &Unique{}
+}
+
+func (u *Unique) Build(table string, builder structor.Builder) {
+	for _, value := range u.Values {
+		builder.WriteRaw(value.Title)
+	}
+	builder.Unique(u.IsUnique)
 }
