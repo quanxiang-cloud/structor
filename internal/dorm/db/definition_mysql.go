@@ -77,3 +77,17 @@ func (u *Unique) Build(table string, builder structor.Builder) {
 	builder.WriteRaw(u.Values.ConvertIndex())
 	builder.WriteRaw(");")
 }
+
+type DropIndexes struct {
+	structor.DropIndexes
+}
+
+func dropIndexes() structor.Constructor {
+	return &DropIndexes{}
+}
+
+func (d *DropIndexes) Build(table string, builder structor.Builder) {
+	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` DROP INDEX ", d.Column))
+	builder.WriteRaw(d.Values.ConvertIndex())
+	builder.WriteRaw(";")
+}

@@ -123,10 +123,6 @@ func (u *Modify) Set(column string, values ...*Field) {
 	u.Values = values
 }
 
-// ALTER TABLE `table_name` ADD INDEX (`column`);
-
-// db.collection.createIndex({"name": 1},{unique: true});
-
 type Index struct {
 	Column   string
 	Values   Fields
@@ -142,9 +138,6 @@ func (i *Index) Set(column string, values ...*Field) {
 	i.Values = values
 }
 
-// ALTER TABLE table_name ADD UNIQUE (column_list)
-
-// ALTER TABLE table_name ADD PRIMARY KEY (column_list)
 type Unique struct {
 	Column   string
 	Values   Fields
@@ -161,4 +154,18 @@ func (u *Unique) Set(column string, values ...*Field) {
 	u.IsUnique = true
 }
 
-// ALTER TABLE table_name DROP INDEX index_name
+const DropIndexesOpt = "drop_indexes"
+
+type DropIndexes struct {
+	Column string
+	Values Fields
+}
+
+func (d *DropIndexes) GetTag() string {
+	return "drop_indexes"
+}
+
+func (d *DropIndexes) Set(column string, values ...*Field) {
+	d.Column = column
+	d.Values = values
+}
