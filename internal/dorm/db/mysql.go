@@ -237,6 +237,10 @@ func (d *Dorm) Index(ctx context.Context, name string) error {
 	return d.Exec(ctx)
 }
 
+func (d *Dorm) DropIndexes(ctx context.Context) error {
+	return d.Exec(ctx)
+}
+
 type MYSQL struct {
 	table string
 
@@ -288,6 +292,11 @@ func (m *MYSQL) WriteRaw(s string) {
 }
 
 func (m *MYSQL) Unique(unique bool) {
+	// nothing to do
+	return
+}
+
+func (m *MYSQL) IndexName(names []string) {
 	// nothing to do
 	return
 }

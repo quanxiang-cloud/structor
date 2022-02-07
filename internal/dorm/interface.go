@@ -27,4 +27,5 @@ type Dept interface {
 	Build(table string, expr structor.Constructor) Dept
 	Exec(ctx context.Context) error
 	Index(ctx context.Context, name string) error
+	DropIndexes(ctx context.Context) error
 }

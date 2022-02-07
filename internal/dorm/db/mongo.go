@@ -5,7 +5,6 @@ package db
 import (
 	"context"
 	"flag"
-	"fmt"
 	"strings"
 
 	mgc "github.com/quanxiang-cloud/cabin/tailormade/db/mongo"
@@ -259,18 +258,22 @@ func (d *Dorm) Exec(context.Context) error {
 }
 
 func (d *Dorm) Index(ctx context.Context, name string) error {
-	// d.builder.WriteRaw()
-	// fmt.Println(d.builder.IndexModel)
-	strs, err := d.C.Indexes().CreateOne(ctx, mongo.IndexModel{
+	_, err := d.C.Indexes().CreateOne(ctx, mongo.IndexModel{
 		Keys:    d.builder.Keys,
 		Options: options.Index().SetName(name).SetUnique(d.builder.IsUnique),
 	})
 
-	fmt.Println(strs)
-	// d.C.Indexes().CreateMany(ctx, d.builder.IndexModel)
-
-	// d.C.Indexes().CreateMany(ctx, models []mongo.IndexModel, opts ...*options.CreateIndexesOptions)
 	return err
+}
+
+func (d *Dorm) DropIndex(ctx context.Context) error {
+	for _, name := range d.builder.Indexes {
+		_, err := d.C.Indexes().DropOne(ctx, name)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // MONGO mongo
@@ -279,6 +282,7 @@ type MONGO struct {
 	Agg      bson.M
 	Keys     bson.D
 	IsUnique bool
+	Indexes  []string
 }
 
 // WriteString write string
@@ -336,4 +340,8 @@ func (m *MONGO) WriteRaw(field string) {
 
 func (m *MONGO) Unique(unique bool) {
 	m.IsUnique = unique
+}
+
+func (m *MONGO) IndexName(names []string) {
+	m.Indexes = names
 }
