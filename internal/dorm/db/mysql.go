@@ -299,5 +299,9 @@ func (m *MYSQL) Unique(unique bool) {
 
 func (m *MYSQL) IndexName(names []string) {
 	// nothing to do
+}
+
+func (m *MYSQL) Create(bool, ...string) {
+	// do nothing
 	return
 }
