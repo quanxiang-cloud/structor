@@ -17,6 +17,12 @@ func create() structor.Constructor {
 }
 
 func (c *Create) Build(table string, builder structor.Builder) {
+	c.Values = append(c.Values, &structor.Field{
+		Title:   "_id",
+		Type:    "string",
+		Comment: "unique id",
+	})
+
 	builder.WriteRaw(fmt.Sprintf(" CREATE TABLE `%s` ( ", c.Column))
 	builder.WriteRaw(c.Values.Convert(mySQLDialector))
 	builder.WriteRaw(fmt.Sprintf(") ENGINE=%s DEFAULT CHARSET=%s COLLATE=%s;", engine, charset, collate))

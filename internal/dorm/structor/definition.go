@@ -21,6 +21,9 @@ func (fs Fields) Convert(dialector Dialector) string {
 	for index, f := range fs {
 		ds := dialectMgr.Transform(f)
 		builder.WriteString(fmt.Sprintf(" `%s` %s ", f.Title, ds(f)))
+		if f.Title == "_id" {
+			builder.WriteString(" PRIMARY KEY ")
+		}
 		if f.NotNull {
 			builder.WriteString(" NOT NULL ")
 		}

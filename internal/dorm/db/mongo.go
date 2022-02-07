@@ -246,6 +246,7 @@ func (d *Dorm) Delete(ctx context.Context) (int64, error) {
 
 func (d *Dorm) Build(table string, expr structor.Constructor) dorm.Dept {
 	dorm := &Dorm{
+		db:      d.db,
 		C:       d.db.Collection(table),
 		builder: new(MONGO),
 	}
@@ -253,8 +254,27 @@ func (d *Dorm) Build(table string, expr structor.Constructor) dorm.Dept {
 	return dorm
 }
 
-func (d *Dorm) Exec(context.Context) error {
-	// do nothing
+func (d *Dorm) Exec(c context.Context) error {
+	if d.builder.IsCreate {
+		jsonSchema := bson.M{
+			"bsonType": "object",
+			"required": []string{"_id"},
+			"properties": bson.M{
+				"_id": bson.M{
+					"bsonType": "string",
+				},
+			},
+		}
+		validator := bson.M{
+			"$jsonSchema": jsonSchema,
+		}
+		opts := options.CreateCollection().SetValidator(validator)
+
+		err := d.db.CreateCollection(c, d.builder.ColName, opts)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -284,6 +304,8 @@ type MONGO struct {
 	Keys     bson.D
 	IsUnique bool
 	Indexes  []string
+	IsCreate bool
+	ColName  string
 }
 
 // WriteString write string
@@ -345,4 +367,11 @@ func (m *MONGO) Unique(unique bool) {
 
 func (m *MONGO) IndexName(names []string) {
 	m.Indexes = names
+}
+
+func (m *MONGO) Create(f bool, name ...string) {
+	m.IsCreate = f
+	if len(name) > 0 {
+		m.ColName = name[0]
+	}
 }
