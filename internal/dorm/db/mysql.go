@@ -72,11 +72,12 @@ func init() {
 	})
 
 	structor.SetDdlConstructors(map[string]structor.Expr{
-		(&Create{}).GetTag(): create,
-		(&Add{}).GetTag():    add,
-		(&Modify{}).GetTag(): modify,
-		(&Index{}).GetTag():  index,
-		(&Unique{}).GetTag(): unique,
+		(&Create{}).GetTag():      create,
+		(&Add{}).GetTag():         add,
+		(&Modify{}).GetTag():      modify,
+		(&Index{}).GetTag():       index,
+		(&Unique{}).GetTag():      unique,
+		(&DropIndexes{}).GetTag(): dropIndexes,
 	})
 }
 
