@@ -15,7 +15,7 @@ func create() structor.Constructor {
 }
 
 func (c *Create) Build(table string, builder structor.Builder) {
-	// do nothing
+	builder.Create(true, c.Column)
 }
 
 type Drop struct {
