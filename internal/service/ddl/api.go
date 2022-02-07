@@ -12,6 +12,7 @@ import (
 type DDLService interface {
 	Execute(context.Context, *ExecuteReq) (*ExecuteResp, error)
 	Index(ctx context.Context, req *IndexReq) (*IndexResp, error)
+	DropIndexes(ctx context.Context, req *DropIndexesReq) (*DropIndexesResp, error)
 }
 
 type Field = structor.Field
@@ -90,6 +91,31 @@ func (d *ddl) Index(ctx context.Context, req *IndexReq) (*IndexResp, error) {
 	return &IndexResp{
 		Index: indexName,
 	}, nil
+}
+
+type DropIndexesReq struct {
+	Option string
+	Table  string
+	Fields []*Field
+}
+
+type DropIndexesResp struct {
+}
+
+func (d *ddl) DropIndexes(ctx context.Context, req *DropIndexesReq) (*DropIndexesResp, error) {
+	c, err := convert(req.Option, req.Table, req.Fields...)
+	if err != nil {
+		return nil, err
+	}
+
+	sc := d.db.Build(req.Table, c)
+
+	err = sc.DropIndexes(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &DropIndexesResp{}, nil
+
 }
 
 func convert(op string, table string, values ...*Field) (structor.Constructor, error) {

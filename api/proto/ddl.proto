@@ -29,7 +29,16 @@ message IndexesResp{
     string indexName = 1;
 }
 
+message DropIndexesReq{
+    string tableName = 1;
+    repeated string indexName = 2;
+}
+
+message DropIndexesResp{
+}
+
 service DDLService{
     rpc Execute(ExecuteReq)returns(ExecuteResp);
     rpc Indexes(IndexesReq)returns(IndexesResp);
+    rpc DropIndexes(DropIndexesReq)returns(DropIndexesResp);
 }

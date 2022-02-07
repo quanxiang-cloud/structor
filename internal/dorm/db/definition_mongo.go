@@ -94,3 +94,19 @@ func (u *Unique) Build(table string, builder structor.Builder) {
 	}
 	builder.Unique(u.IsUnique)
 }
+
+type DropIndexes struct {
+	structor.DropIndexes
+}
+
+func dropIndexes() structor.Constructor {
+	return &DropIndexes{}
+}
+
+func (d *DropIndexes) Build(table string, builder structor.Builder) {
+	indexes := make([]string, 0, len(d.Values))
+	for _, value := range d.Values {
+		indexes = append(indexes, value.Title)
+	}
+	builder.IndexName(indexes)
+}

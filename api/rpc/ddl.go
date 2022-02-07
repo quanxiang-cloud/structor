@@ -48,6 +48,18 @@ func (d *ddlService) Indexes(ctx context.Context, req *pb.IndexesReq) (*pb.Index
 
 }
 
+func (d *ddlService) DropIndexes(ctx context.Context, req *pb.DropIndexesReq) (*pb.DropIndexesResp, error) {
+	_, err := d.ddl.DropIndexes(ctx, &ddlservice.DropIndexesReq{
+		Option: structor.DropIndexesOpt,
+		Table:  req.TableName,
+		Fields: transformIndex(req.IndexName),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.DropIndexesResp{}, nil
+}
+
 func transform(fields []*pb.Field) []*structor.Field {
 	ret := make([]*structor.Field, 0, len(fields))
 	for _, f := range fields {
