@@ -266,7 +266,7 @@ func (d *Dorm) Index(ctx context.Context, name string) error {
 	return err
 }
 
-func (d *Dorm) DropIndex(ctx context.Context) error {
+func (d *Dorm) DropIndexes(ctx context.Context) error {
 	for _, name := range d.builder.Indexes {
 		_, err := d.C.Indexes().DropOne(ctx, name)
 		if err != nil {
