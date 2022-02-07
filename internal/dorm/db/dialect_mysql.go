@@ -50,6 +50,9 @@ func (m *MySQLDialector) String(f *structor.Field) string {
 	if f.Max > 255 {
 		return "TEXT"
 	}
+	if f.Max == 0 {
+		f.Max = 64
+	}
 	return fmt.Sprintf("VARCHAR(%d)", f.Max)
 }
 
