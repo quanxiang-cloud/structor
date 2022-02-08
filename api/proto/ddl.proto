@@ -1,13 +1,30 @@
 syntax = "proto3";
 package proto;
 
-message ExecuteReq{
+message CreateReq{
     string tableName = 1;
-    string option = 2;
     repeated Field fields = 3;
 }
 
-message ExecuteResp{
+message CreateResp {
+    string tableName = 1;
+}
+
+message AddReq {
+    string tableName = 1;
+    repeated Field fields = 3;
+}
+
+message AddResp {
+    string tableName = 1;
+}
+
+message ModifyReq {
+    string tableName = 1;
+    repeated Field fields = 3;
+}
+
+message ModifyResp {
     string tableName = 1;
 }
 
@@ -38,7 +55,9 @@ message DropIndexesResp{
 }
 
 service DDLService{
-    rpc Execute(ExecuteReq)returns(ExecuteResp);
+    rpc Create(CreateReq)returns(CreateResp);
+    rpc Add(AddReq)returns(AddResp);
+    rpc Modify(ModifyReq)returns(ModifyResp);
     rpc Indexes(IndexesReq)returns(IndexesResp);
     rpc DropIndexes(DropIndexesReq)returns(DropIndexesResp);
 }

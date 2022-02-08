@@ -19,44 +19,69 @@ func newDDL(ctx context.Context, conf *Config) pb.DDLServiceServer {
 	}
 }
 
-func (d *ddlService) Execute(ctx context.Context, req *pb.ExecuteReq) (*pb.ExecuteResp, error) {
-	resp, err := d.ddl.Execute(ctx, &ddlservice.ExecuteReq{
+func (d *ddlService) Create(ctx context.Context, req *pb.CreateReq) (*pb.CreateResp, error) {
+	resp, err := d.ddl.Create(ctx, &ddlservice.ExecuteReq{
 		Table:  req.TableName,
-		Option: req.Option,
 		Fields: transform(req.Fields),
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &pb.ExecuteResp{
+	return &pb.CreateResp{
+		TableName: resp.Table,
+	}, nil
+}
+
+func (d *ddlService) Add(ctx context.Context, req *pb.AddReq) (*pb.AddResp, error) {
+	resp, err := d.ddl.Add(ctx, &ddlservice.ExecuteReq{
+		Table:  req.TableName,
+		Fields: transform(req.Fields),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.AddResp{
+		TableName: resp.Table,
+	}, nil
+}
+
+func (d *ddlService) Modify(ctx context.Context, req *pb.ModifyReq) (*pb.ModifyResp, error) {
+	resp, err := d.ddl.Modify(ctx, &ddlservice.ExecuteReq{
+		Table:  req.TableName,
+		Fields: transform(req.Fields),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.ModifyResp{
 		TableName: resp.Table,
 	}, nil
 }
 
 func (d *ddlService) Indexes(ctx context.Context, req *pb.IndexesReq) (*pb.IndexesResp, error) {
-	resp, err := d.ddl.Index(ctx, &ddlservice.IndexReq{
-		Option: req.Option,
-		Table:  req.TableName,
-		Fields: transformIndex(req.Titles),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &pb.IndexesResp{
-		IndexName: resp.Index,
-	}, nil
-
+	// resp, err := d.ddl.Index(ctx, &ddlservice.IndexReq{
+	// 	Option: req.Option,
+	// 	Table:  req.TableName,
+	// 	Fields: transformIndex(req.Titles),
+	// })
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return &pb.IndexesResp{
+	// 	IndexName: resp.Index,
+	// }, nil
+	return nil, nil
 }
 
 func (d *ddlService) DropIndexes(ctx context.Context, req *pb.DropIndexesReq) (*pb.DropIndexesResp, error) {
-	_, err := d.ddl.DropIndexes(ctx, &ddlservice.DropIndexesReq{
-		Option: structor.DropIndexesOpt,
-		Table:  req.TableName,
-		Fields: transformIndex(req.IndexName),
-	})
-	if err != nil {
-		return nil, err
-	}
+	// _, err := d.ddl.DropIndexes(ctx, &ddlservice.DropIndexesReq{
+	// 	Option: structor.DropIndexesOpt,
+	// 	Table:  req.TableName,
+	// 	Fields: transformIndex(req.IndexName),
+	// })
+	// if err != nil {
+	// 	return nil, err
+	// }
 	return &pb.DropIndexesResp{}, nil
 }
 

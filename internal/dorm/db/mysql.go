@@ -71,14 +71,10 @@ func init() {
 		(&Max{}).GetTag(): max,
 	})
 
-	structor.SetDdlConstructors(map[string]structor.Expr{
-		(&Create{}).GetTag():      create,
-		(&Add{}).GetTag():         add,
-		(&Modify{}).GetTag():      modify,
-		(&Index{}).GetTag():       index,
-		(&Unique{}).GetTag():      unique,
-		(&DropIndexes{}).GetTag(): dropIndexes,
-	})
+	structor.SetCreateExpr(create)
+	structor.SetAddExpr(add)
+	structor.SetModifyExpr(modify)
+	structor.SetPrimaryExpr(primary)
 }
 
 type Dorm struct {
@@ -216,30 +212,42 @@ func (d *Dorm) Delete(ctx context.Context) (int64, error) {
 	return affected, nil
 }
 
-func (d *Dorm) Build(table string, expr structor.Constructor) dorm.Dept {
+// ************************************************************************************************************
+
+func (d *Dorm) Create(ctx context.Context, constructor structor.Constructor) error {
+	return d.exec(constructor)
+}
+
+func (d *Dorm) Add(ctx context.Context, constructor structor.Constructor) error {
+	return d.exec(constructor)
+}
+
+func (d *Dorm) Modify(ctx context.Context, constructor structor.Constructor) error {
+	return d.exec(constructor)
+}
+
+func (d *Dorm) Primary(ctx context.Context, constructor structor.Constructor) error {
+	return d.exec(constructor)
+}
+
+func (d *Dorm) exec(constructor structor.Constructor) error {
 	builder := &MYSQL{
 		raw: bytes.Buffer{},
 	}
-
-	dorm := &Dorm{
-		db:      d.db,
-		builder: builder,
-	}
-	expr.Build(table, dorm.builder)
-	return dorm
-}
-
-func (d *Dorm) Exec(ctx context.Context) error {
-	fmt.Println(d.builder.raw.String())
-	return d.db.Exec(d.builder.raw.String()).Error
+	constructor.Build(builder)
+	return d.db.Exec(builder.raw.String()).Error
 }
 
 func (d *Dorm) Index(ctx context.Context, name string) error {
-	return d.Exec(ctx)
+	// TODO:
+	return nil
+	// return d.Exec(ctx)
 }
 
 func (d *Dorm) DropIndexes(ctx context.Context) error {
-	return d.Exec(ctx)
+	// TODO:
+	return nil
+	// return d.Exec(ctx)
 }
 
 type MYSQL struct {
@@ -299,9 +307,4 @@ func (m *MYSQL) Unique(unique bool) {
 
 func (m *MYSQL) IndexName(names []string) {
 	// nothing to do
-}
-
-func (m *MYSQL) Create(bool, ...string) {
-	// do nothing
-	return
 }

@@ -16,15 +16,23 @@ func create() structor.Constructor {
 	return &Create{}
 }
 
-func (c *Create) Build(table string, builder structor.Builder) {
-	c.Values = append(c.Values, &structor.Field{
+var defaultID = structor.Fields{
+	{
 		Title:   "_id",
 		Type:    "string",
 		Comment: "unique id",
-	})
+	},
+}
 
-	builder.WriteRaw(fmt.Sprintf(" CREATE TABLE `%s` ( ", c.Column))
-	builder.WriteRaw(c.Values.Convert(mySQLDialector))
+func (c *Create) Build(builder structor.Builder) {
+	builder.WriteRaw(fmt.Sprintf(" CREATE TABLE `%s` ( ", c.Table))
+	fields := defaultID.Convert(mySQLDialector)
+	for index, field := range fields {
+		builder.WriteRaw(field)
+		if index != len(fields)-1 {
+			builder.WriteRaw(",")
+		}
+	}
 	builder.WriteRaw(fmt.Sprintf(") ENGINE=%s DEFAULT CHARSET=%s COLLATE=%s;", engine, charset, collate))
 }
 
@@ -36,9 +44,15 @@ func add() structor.Constructor {
 	return &Add{}
 }
 
-func (a *Add) Build(table string, builder structor.Builder) {
-	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` ADD COLUMN ", a.Column))
-	builder.WriteRaw(a.Values.Convert(mySQLDialector))
+func (a *Add) Build(builder structor.Builder) {
+	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` ", a.Table))
+	fields := a.Fields.Convert(mySQLDialector)
+	for index, field := range fields {
+		builder.WriteRaw(fmt.Sprintf(" ADD COLUMN %s ", field))
+		if index != len(fields)-1 {
+			builder.WriteRaw(",")
+		}
+	}
 	builder.WriteRaw(";")
 }
 
@@ -50,10 +64,30 @@ func modify() structor.Constructor {
 	return &Modify{}
 }
 
-func (m *Modify) Build(table string, builder structor.Builder) {
-	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` MODIFY COLUMN ", m.Column))
-	builder.WriteRaw(m.Values.Convert(mySQLDialector))
+func (m *Modify) Build(builder structor.Builder) {
+	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` ", m.Table))
+	fields := m.Fields.Convert(mySQLDialector)
+	for index, field := range fields {
+		builder.WriteRaw(fmt.Sprintf(" MODIFY COLUMN %s ", field))
+		if index != len(fields)-1 {
+			builder.WriteRaw(",")
+		}
+	}
 	builder.WriteRaw(";")
+}
+
+type Primary struct {
+	structor.Primary
+}
+
+func primary() structor.Constructor {
+	return &Primary{}
+}
+
+func (p *Primary) Build(builder structor.Builder) {
+	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` ADD PRIMARY KEY( ", p.Table))
+	builder.WriteRaw(defaultID.ConvertIndex())
+	builder.WriteRaw(" ); ")
 }
 
 type Index struct {
@@ -64,9 +98,9 @@ func index() structor.Constructor {
 	return &Index{}
 }
 
-func (i *Index) Build(table string, builder structor.Builder) {
-	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` ADD INDEX `%s` (", i.Column, i.Values.GenIndexName(i.GetTag())))
-	builder.WriteRaw(i.Values.ConvertIndex())
+func (i *Index) Build(builder structor.Builder) {
+	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` ADD INDEX `%s` (", i.Table, i.Fields.GenIndexName(i.GetTag())))
+	builder.WriteRaw(i.Fields.ConvertIndex())
 	builder.WriteRaw(");")
 }
 
@@ -78,9 +112,9 @@ func unique() structor.Constructor {
 	return &Unique{}
 }
 
-func (u *Unique) Build(table string, builder structor.Builder) {
-	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` ADD UNIQUE `%s` ( ", u.Column, u.Values.GenIndexName(u.GetTag())))
-	builder.WriteRaw(u.Values.ConvertIndex())
+func (u *Unique) Build(builder structor.Builder) {
+	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` ADD UNIQUE `%s` ( ", u.Table, u.Fields.GenIndexName(u.GetTag())))
+	builder.WriteRaw(u.Fields.ConvertIndex())
 	builder.WriteRaw(");")
 }
 
@@ -92,8 +126,8 @@ func dropIndexes() structor.Constructor {
 	return &DropIndexes{}
 }
 
-func (d *DropIndexes) Build(table string, builder structor.Builder) {
-	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` DROP INDEX ", d.Column))
-	builder.WriteRaw(d.Values.ConvertIndex())
+func (d *DropIndexes) Build(builder structor.Builder) {
+	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` DROP INDEX ", d.Table))
+	builder.WriteRaw(d.Fields.ConvertIndex())
 	builder.WriteRaw(";")
 }

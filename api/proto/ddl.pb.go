@@ -24,94 +24,258 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-type ExecuteReq struct {
+type CreateReq struct {
 	TableName            string   `protobuf:"bytes,1,opt,name=tableName,proto3" json:"tableName,omitempty"`
-	Option               string   `protobuf:"bytes,2,opt,name=option,proto3" json:"option,omitempty"`
 	Fields               []*Field `protobuf:"bytes,3,rep,name=fields,proto3" json:"fields,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ExecuteReq) Reset()         { *m = ExecuteReq{} }
-func (m *ExecuteReq) String() string { return proto.CompactTextString(m) }
-func (*ExecuteReq) ProtoMessage()    {}
-func (*ExecuteReq) Descriptor() ([]byte, []int) {
+func (m *CreateReq) Reset()         { *m = CreateReq{} }
+func (m *CreateReq) String() string { return proto.CompactTextString(m) }
+func (*CreateReq) ProtoMessage()    {}
+func (*CreateReq) Descriptor() ([]byte, []int) {
 	return fileDescriptor_c9bd5749e671052d, []int{0}
 }
 
-func (m *ExecuteReq) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ExecuteReq.Unmarshal(m, b)
+func (m *CreateReq) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateReq.Unmarshal(m, b)
 }
-func (m *ExecuteReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ExecuteReq.Marshal(b, m, deterministic)
+func (m *CreateReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateReq.Marshal(b, m, deterministic)
 }
-func (m *ExecuteReq) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ExecuteReq.Merge(m, src)
+func (m *CreateReq) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateReq.Merge(m, src)
 }
-func (m *ExecuteReq) XXX_Size() int {
-	return xxx_messageInfo_ExecuteReq.Size(m)
+func (m *CreateReq) XXX_Size() int {
+	return xxx_messageInfo_CreateReq.Size(m)
 }
-func (m *ExecuteReq) XXX_DiscardUnknown() {
-	xxx_messageInfo_ExecuteReq.DiscardUnknown(m)
+func (m *CreateReq) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateReq.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ExecuteReq proto.InternalMessageInfo
+var xxx_messageInfo_CreateReq proto.InternalMessageInfo
 
-func (m *ExecuteReq) GetTableName() string {
+func (m *CreateReq) GetTableName() string {
 	if m != nil {
 		return m.TableName
 	}
 	return ""
 }
 
-func (m *ExecuteReq) GetOption() string {
-	if m != nil {
-		return m.Option
-	}
-	return ""
-}
-
-func (m *ExecuteReq) GetFields() []*Field {
+func (m *CreateReq) GetFields() []*Field {
 	if m != nil {
 		return m.Fields
 	}
 	return nil
 }
 
-type ExecuteResp struct {
+type CreateResp struct {
 	TableName            string   `protobuf:"bytes,1,opt,name=tableName,proto3" json:"tableName,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ExecuteResp) Reset()         { *m = ExecuteResp{} }
-func (m *ExecuteResp) String() string { return proto.CompactTextString(m) }
-func (*ExecuteResp) ProtoMessage()    {}
-func (*ExecuteResp) Descriptor() ([]byte, []int) {
+func (m *CreateResp) Reset()         { *m = CreateResp{} }
+func (m *CreateResp) String() string { return proto.CompactTextString(m) }
+func (*CreateResp) ProtoMessage()    {}
+func (*CreateResp) Descriptor() ([]byte, []int) {
 	return fileDescriptor_c9bd5749e671052d, []int{1}
 }
 
-func (m *ExecuteResp) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ExecuteResp.Unmarshal(m, b)
+func (m *CreateResp) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateResp.Unmarshal(m, b)
 }
-func (m *ExecuteResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ExecuteResp.Marshal(b, m, deterministic)
+func (m *CreateResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateResp.Marshal(b, m, deterministic)
 }
-func (m *ExecuteResp) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ExecuteResp.Merge(m, src)
+func (m *CreateResp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateResp.Merge(m, src)
 }
-func (m *ExecuteResp) XXX_Size() int {
-	return xxx_messageInfo_ExecuteResp.Size(m)
+func (m *CreateResp) XXX_Size() int {
+	return xxx_messageInfo_CreateResp.Size(m)
 }
-func (m *ExecuteResp) XXX_DiscardUnknown() {
-	xxx_messageInfo_ExecuteResp.DiscardUnknown(m)
+func (m *CreateResp) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateResp.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ExecuteResp proto.InternalMessageInfo
+var xxx_messageInfo_CreateResp proto.InternalMessageInfo
 
-func (m *ExecuteResp) GetTableName() string {
+func (m *CreateResp) GetTableName() string {
+	if m != nil {
+		return m.TableName
+	}
+	return ""
+}
+
+type AddReq struct {
+	TableName            string   `protobuf:"bytes,1,opt,name=tableName,proto3" json:"tableName,omitempty"`
+	Fields               []*Field `protobuf:"bytes,3,rep,name=fields,proto3" json:"fields,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *AddReq) Reset()         { *m = AddReq{} }
+func (m *AddReq) String() string { return proto.CompactTextString(m) }
+func (*AddReq) ProtoMessage()    {}
+func (*AddReq) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c9bd5749e671052d, []int{2}
+}
+
+func (m *AddReq) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddReq.Unmarshal(m, b)
+}
+func (m *AddReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddReq.Marshal(b, m, deterministic)
+}
+func (m *AddReq) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddReq.Merge(m, src)
+}
+func (m *AddReq) XXX_Size() int {
+	return xxx_messageInfo_AddReq.Size(m)
+}
+func (m *AddReq) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddReq.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddReq proto.InternalMessageInfo
+
+func (m *AddReq) GetTableName() string {
+	if m != nil {
+		return m.TableName
+	}
+	return ""
+}
+
+func (m *AddReq) GetFields() []*Field {
+	if m != nil {
+		return m.Fields
+	}
+	return nil
+}
+
+type AddResp struct {
+	TableName            string   `protobuf:"bytes,1,opt,name=tableName,proto3" json:"tableName,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *AddResp) Reset()         { *m = AddResp{} }
+func (m *AddResp) String() string { return proto.CompactTextString(m) }
+func (*AddResp) ProtoMessage()    {}
+func (*AddResp) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c9bd5749e671052d, []int{3}
+}
+
+func (m *AddResp) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddResp.Unmarshal(m, b)
+}
+func (m *AddResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddResp.Marshal(b, m, deterministic)
+}
+func (m *AddResp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddResp.Merge(m, src)
+}
+func (m *AddResp) XXX_Size() int {
+	return xxx_messageInfo_AddResp.Size(m)
+}
+func (m *AddResp) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddResp.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddResp proto.InternalMessageInfo
+
+func (m *AddResp) GetTableName() string {
+	if m != nil {
+		return m.TableName
+	}
+	return ""
+}
+
+type ModifyReq struct {
+	TableName            string   `protobuf:"bytes,1,opt,name=tableName,proto3" json:"tableName,omitempty"`
+	Fields               []*Field `protobuf:"bytes,3,rep,name=fields,proto3" json:"fields,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ModifyReq) Reset()         { *m = ModifyReq{} }
+func (m *ModifyReq) String() string { return proto.CompactTextString(m) }
+func (*ModifyReq) ProtoMessage()    {}
+func (*ModifyReq) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c9bd5749e671052d, []int{4}
+}
+
+func (m *ModifyReq) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ModifyReq.Unmarshal(m, b)
+}
+func (m *ModifyReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ModifyReq.Marshal(b, m, deterministic)
+}
+func (m *ModifyReq) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ModifyReq.Merge(m, src)
+}
+func (m *ModifyReq) XXX_Size() int {
+	return xxx_messageInfo_ModifyReq.Size(m)
+}
+func (m *ModifyReq) XXX_DiscardUnknown() {
+	xxx_messageInfo_ModifyReq.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ModifyReq proto.InternalMessageInfo
+
+func (m *ModifyReq) GetTableName() string {
+	if m != nil {
+		return m.TableName
+	}
+	return ""
+}
+
+func (m *ModifyReq) GetFields() []*Field {
+	if m != nil {
+		return m.Fields
+	}
+	return nil
+}
+
+type ModifyResp struct {
+	TableName            string   `protobuf:"bytes,1,opt,name=tableName,proto3" json:"tableName,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ModifyResp) Reset()         { *m = ModifyResp{} }
+func (m *ModifyResp) String() string { return proto.CompactTextString(m) }
+func (*ModifyResp) ProtoMessage()    {}
+func (*ModifyResp) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c9bd5749e671052d, []int{5}
+}
+
+func (m *ModifyResp) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ModifyResp.Unmarshal(m, b)
+}
+func (m *ModifyResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ModifyResp.Marshal(b, m, deterministic)
+}
+func (m *ModifyResp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ModifyResp.Merge(m, src)
+}
+func (m *ModifyResp) XXX_Size() int {
+	return xxx_messageInfo_ModifyResp.Size(m)
+}
+func (m *ModifyResp) XXX_DiscardUnknown() {
+	xxx_messageInfo_ModifyResp.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ModifyResp proto.InternalMessageInfo
+
+func (m *ModifyResp) GetTableName() string {
 	if m != nil {
 		return m.TableName
 	}
@@ -133,7 +297,7 @@ func (m *Field) Reset()         { *m = Field{} }
 func (m *Field) String() string { return proto.CompactTextString(m) }
 func (*Field) ProtoMessage()    {}
 func (*Field) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c9bd5749e671052d, []int{2}
+	return fileDescriptor_c9bd5749e671052d, []int{6}
 }
 
 func (m *Field) XXX_Unmarshal(b []byte) error {
@@ -202,7 +366,7 @@ func (m *IndexesReq) Reset()         { *m = IndexesReq{} }
 func (m *IndexesReq) String() string { return proto.CompactTextString(m) }
 func (*IndexesReq) ProtoMessage()    {}
 func (*IndexesReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c9bd5749e671052d, []int{3}
+	return fileDescriptor_c9bd5749e671052d, []int{7}
 }
 
 func (m *IndexesReq) XXX_Unmarshal(b []byte) error {
@@ -255,7 +419,7 @@ func (m *IndexesResp) Reset()         { *m = IndexesResp{} }
 func (m *IndexesResp) String() string { return proto.CompactTextString(m) }
 func (*IndexesResp) ProtoMessage()    {}
 func (*IndexesResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c9bd5749e671052d, []int{4}
+	return fileDescriptor_c9bd5749e671052d, []int{8}
 }
 
 func (m *IndexesResp) XXX_Unmarshal(b []byte) error {
@@ -295,7 +459,7 @@ func (m *DropIndexesReq) Reset()         { *m = DropIndexesReq{} }
 func (m *DropIndexesReq) String() string { return proto.CompactTextString(m) }
 func (*DropIndexesReq) ProtoMessage()    {}
 func (*DropIndexesReq) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c9bd5749e671052d, []int{5}
+	return fileDescriptor_c9bd5749e671052d, []int{9}
 }
 
 func (m *DropIndexesReq) XXX_Unmarshal(b []byte) error {
@@ -340,7 +504,7 @@ func (m *DropIndexesResp) Reset()         { *m = DropIndexesResp{} }
 func (m *DropIndexesResp) String() string { return proto.CompactTextString(m) }
 func (*DropIndexesResp) ProtoMessage()    {}
 func (*DropIndexesResp) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c9bd5749e671052d, []int{6}
+	return fileDescriptor_c9bd5749e671052d, []int{10}
 }
 
 func (m *DropIndexesResp) XXX_Unmarshal(b []byte) error {
@@ -362,8 +526,12 @@ func (m *DropIndexesResp) XXX_DiscardUnknown() {
 var xxx_messageInfo_DropIndexesResp proto.InternalMessageInfo
 
 func init() {
-	proto.RegisterType((*ExecuteReq)(nil), "proto.ExecuteReq")
-	proto.RegisterType((*ExecuteResp)(nil), "proto.ExecuteResp")
+	proto.RegisterType((*CreateReq)(nil), "proto.CreateReq")
+	proto.RegisterType((*CreateResp)(nil), "proto.CreateResp")
+	proto.RegisterType((*AddReq)(nil), "proto.AddReq")
+	proto.RegisterType((*AddResp)(nil), "proto.AddResp")
+	proto.RegisterType((*ModifyReq)(nil), "proto.ModifyReq")
+	proto.RegisterType((*ModifyResp)(nil), "proto.ModifyResp")
 	proto.RegisterType((*Field)(nil), "proto.Field")
 	proto.RegisterType((*IndexesReq)(nil), "proto.IndexesReq")
 	proto.RegisterType((*IndexesResp)(nil), "proto.IndexesResp")
@@ -374,28 +542,32 @@ func init() {
 func init() { proto.RegisterFile("api/proto/ddl.proto", fileDescriptor_c9bd5749e671052d) }
 
 var fileDescriptor_c9bd5749e671052d = []byte{
-	// 333 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x52, 0xc1, 0x4a, 0xc3, 0x40,
-	0x10, 0x25, 0x4d, 0x93, 0xda, 0xa9, 0xa8, 0x1d, 0xb5, 0x2c, 0xc5, 0x43, 0x08, 0x1e, 0x02, 0x42,
-	0x2b, 0xf5, 0xea, 0xb1, 0x0a, 0x42, 0xe9, 0x21, 0xde, 0xbc, 0xa5, 0xcd, 0x88, 0x81, 0x24, 0xbb,
-	0x76, 0xb7, 0x5a, 0x7f, 0xca, 0x6f, 0x94, 0xdd, 0x6c, 0xd3, 0x54, 0x44, 0xc4, 0x53, 0xe6, 0xbd,
-	0x99, 0x79, 0xf3, 0x76, 0x26, 0x70, 0x9a, 0x88, 0x6c, 0x2c, 0x56, 0x5c, 0xf1, 0x71, 0x9a, 0xe6,
-	0x23, 0x13, 0xa1, 0x67, 0x3e, 0xe1, 0x0b, 0xc0, 0xdd, 0x86, 0x96, 0x6b, 0x45, 0x31, 0xbd, 0xe2,
-	0x05, 0x74, 0x55, 0xb2, 0xc8, 0x69, 0x9e, 0x14, 0xc4, 0x9c, 0xc0, 0x89, 0xba, 0xf1, 0x8e, 0xc0,
-	0x01, 0xf8, 0x5c, 0xa8, 0x8c, 0x97, 0xac, 0x65, 0x52, 0x16, 0xe1, 0x25, 0xf8, 0xcf, 0x19, 0xe5,
-	0xa9, 0x64, 0x6e, 0xe0, 0x46, 0xbd, 0xc9, 0x61, 0x35, 0x62, 0x74, 0xaf, 0xc9, 0xd8, 0xe6, 0xc2,
-	0x2b, 0xe8, 0xd5, 0x93, 0xa4, 0xf8, 0x7d, 0x54, 0xf8, 0x0e, 0x9e, 0xe9, 0xc6, 0x33, 0xf0, 0x54,
-	0xa6, 0xf2, 0x6d, 0x49, 0x05, 0x10, 0xa1, 0xad, 0x3e, 0x04, 0x59, 0x1f, 0x26, 0xc6, 0x13, 0x70,
-	0x8b, 0x64, 0xc3, 0xdc, 0xc0, 0x89, 0xdc, 0x58, 0x87, 0xc8, 0xa0, 0xb3, 0xe4, 0x45, 0x41, 0xa5,
-	0x62, 0x6d, 0x53, 0xb8, 0x85, 0x3a, 0x53, 0x72, 0x35, 0x5f, 0xe7, 0x39, 0xf3, 0x02, 0x27, 0x3a,
-	0x88, 0xb7, 0x30, 0x7c, 0x02, 0x78, 0x28, 0x53, 0xda, 0x90, 0xfc, 0xff, 0x3e, 0x06, 0xe0, 0x1b,
-	0x9b, 0xd5, 0x3e, 0xba, 0xb1, 0x45, 0x7a, 0x03, 0xb5, 0x76, 0xb5, 0x81, 0x4c, 0xc3, 0xa6, 0x78,
-	0x4d, 0x84, 0x33, 0x38, 0x9a, 0xae, 0xb8, 0xf8, 0xb3, 0x99, 0x3d, 0xb5, 0x96, 0x99, 0xdb, 0x50,
-	0xeb, 0xc3, 0xf1, 0x9e, 0x9a, 0x14, 0x93, 0x4f, 0x07, 0x60, 0x3a, 0x9d, 0x3d, 0xd2, 0xea, 0x2d,
-	0x5b, 0x12, 0x5e, 0x43, 0xc7, 0x9e, 0x07, 0xfb, 0xf6, 0x7e, 0xbb, 0x1f, 0x63, 0x88, 0xdf, 0x29,
-	0x29, 0x74, 0x87, 0xd5, 0xab, 0x3b, 0x76, 0x6e, 0xeb, 0x8e, 0xe6, 0x8b, 0x6f, 0xa1, 0xd7, 0x70,
-	0x81, 0xe7, 0xb6, 0x64, 0xff, 0x9d, 0xc3, 0xc1, 0x4f, 0xb4, 0x14, 0x0b, 0xdf, 0xd0, 0x37, 0x5f,
-	0x01, 0x00, 0x00, 0xff, 0xff, 0x2e, 0x02, 0x66, 0x94, 0xcf, 0x02, 0x00, 0x00,
+	// 394 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x92, 0xcf, 0x8b, 0xda, 0x40,
+	0x14, 0xc7, 0x89, 0x31, 0xb1, 0x79, 0xb6, 0x56, 0x5f, 0x5b, 0x09, 0xa1, 0x87, 0x10, 0x84, 0x86,
+	0x96, 0x6a, 0xb1, 0xd7, 0x5e, 0xa4, 0x52, 0x28, 0x58, 0x85, 0xf4, 0xd6, 0x5b, 0x74, 0x46, 0x08,
+	0x24, 0x99, 0x69, 0x66, 0xda, 0xd5, 0xdb, 0xfe, 0xe9, 0x4b, 0x26, 0x93, 0x18, 0x65, 0x59, 0xf7,
+	0xe0, 0x29, 0xf3, 0xfd, 0xbe, 0xc9, 0xe7, 0xfd, 0x98, 0x07, 0x6f, 0x62, 0x9e, 0xcc, 0x78, 0xc1,
+	0x24, 0x9b, 0x11, 0x92, 0x4e, 0xd5, 0x09, 0x2d, 0xf5, 0x09, 0x36, 0xe0, 0x7c, 0x2f, 0x68, 0x2c,
+	0x69, 0x44, 0xff, 0xe2, 0x7b, 0x70, 0x64, 0xbc, 0x4d, 0xe9, 0x3a, 0xce, 0xa8, 0x6b, 0xf8, 0x46,
+	0xe8, 0x44, 0x27, 0x03, 0x27, 0x60, 0xef, 0x13, 0x9a, 0x12, 0xe1, 0x9a, 0xbe, 0x19, 0xf6, 0xe7,
+	0x2f, 0x2b, 0xd2, 0xf4, 0x47, 0x69, 0x46, 0x3a, 0x16, 0x7c, 0x04, 0xa8, 0x81, 0x82, 0x3f, 0x4d,
+	0x0c, 0x56, 0x60, 0x2f, 0x08, 0xb9, 0x55, 0xe6, 0x0f, 0xd0, 0x53, 0xb4, 0xab, 0x69, 0x37, 0xe0,
+	0xfc, 0x62, 0x24, 0xd9, 0x1f, 0x6f, 0xd8, 0x73, 0x0d, 0xbc, 0x9a, 0xfc, 0x0e, 0x2c, 0xf5, 0x33,
+	0xbe, 0x05, 0x4b, 0x26, 0x32, 0xad, 0xaf, 0x54, 0x02, 0x11, 0xba, 0xf2, 0xc8, 0xa9, 0xdb, 0x51,
+	0xa6, 0x3a, 0xe3, 0x10, 0xcc, 0x2c, 0x3e, 0xb8, 0xa6, 0x6f, 0x84, 0x66, 0x54, 0x1e, 0xd1, 0x85,
+	0xde, 0x8e, 0x65, 0x19, 0xcd, 0xa5, 0xdb, 0x55, 0x17, 0x6b, 0x59, 0x46, 0x72, 0x26, 0xd7, 0xff,
+	0xd2, 0xd4, 0xb5, 0x7c, 0x23, 0x7c, 0x11, 0xd5, 0x32, 0xf8, 0x03, 0xf0, 0x33, 0x27, 0xf4, 0x40,
+	0xc5, 0xf5, 0xb6, 0xc7, 0x60, 0x33, 0x2e, 0x13, 0x96, 0xeb, 0x3a, 0xb4, 0x2a, 0x7d, 0x55, 0x66,
+	0x35, 0x0e, 0x27, 0xd2, 0x2a, 0xf8, 0x04, 0xfd, 0x86, 0x5d, 0x4d, 0x20, 0x29, 0x65, 0x1b, 0xde,
+	0x18, 0xc1, 0x0a, 0x06, 0xcb, 0x82, 0xf1, 0x67, 0x17, 0x73, 0x46, 0xeb, 0xa8, 0xbc, 0x2d, 0xda,
+	0x08, 0x5e, 0x9f, 0xd1, 0x04, 0x9f, 0xdf, 0x77, 0x00, 0x96, 0xcb, 0xd5, 0x6f, 0x5a, 0xfc, 0x4f,
+	0x76, 0x14, 0x3f, 0x83, 0x5d, 0x6d, 0x24, 0x0e, 0xf5, 0xeb, 0x35, 0x1b, 0xef, 0x8d, 0x2e, 0x1c,
+	0xc1, 0x71, 0x02, 0xe6, 0x82, 0x10, 0x7c, 0xa5, 0x23, 0xd5, 0x82, 0x7a, 0x83, 0xb6, 0x14, 0xbc,
+	0x84, 0x56, 0x4f, 0xde, 0x40, 0x9b, 0x95, 0x6a, 0xa0, 0xad, 0x9d, 0xf8, 0x02, 0x3d, 0x5d, 0x21,
+	0xd6, 0xd1, 0x53, 0xff, 0x1e, 0x5e, 0x5a, 0x82, 0xe3, 0x37, 0xe8, 0xb7, 0xfa, 0xc2, 0x77, 0xfa,
+	0xca, 0xf9, 0xe4, 0xbc, 0xf1, 0x63, 0xb6, 0xe0, 0x5b, 0x5b, 0xd9, 0x5f, 0x1f, 0x02, 0x00, 0x00,
+	0xff, 0xff, 0x62, 0xd0, 0x91, 0xda, 0xfb, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -410,7 +582,9 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type DDLServiceClient interface {
-	Execute(ctx context.Context, in *ExecuteReq, opts ...grpc.CallOption) (*ExecuteResp, error)
+	Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*CreateResp, error)
+	Add(ctx context.Context, in *AddReq, opts ...grpc.CallOption) (*AddResp, error)
+	Modify(ctx context.Context, in *ModifyReq, opts ...grpc.CallOption) (*ModifyResp, error)
 	Indexes(ctx context.Context, in *IndexesReq, opts ...grpc.CallOption) (*IndexesResp, error)
 	DropIndexes(ctx context.Context, in *DropIndexesReq, opts ...grpc.CallOption) (*DropIndexesResp, error)
 }
@@ -423,9 +597,27 @@ func NewDDLServiceClient(cc *grpc.ClientConn) DDLServiceClient {
 	return &dDLServiceClient{cc}
 }
 
-func (c *dDLServiceClient) Execute(ctx context.Context, in *ExecuteReq, opts ...grpc.CallOption) (*ExecuteResp, error) {
-	out := new(ExecuteResp)
-	err := c.cc.Invoke(ctx, "/proto.DDLService/Execute", in, out, opts...)
+func (c *dDLServiceClient) Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*CreateResp, error) {
+	out := new(CreateResp)
+	err := c.cc.Invoke(ctx, "/proto.DDLService/Create", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dDLServiceClient) Add(ctx context.Context, in *AddReq, opts ...grpc.CallOption) (*AddResp, error) {
+	out := new(AddResp)
+	err := c.cc.Invoke(ctx, "/proto.DDLService/Add", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dDLServiceClient) Modify(ctx context.Context, in *ModifyReq, opts ...grpc.CallOption) (*ModifyResp, error) {
+	out := new(ModifyResp)
+	err := c.cc.Invoke(ctx, "/proto.DDLService/Modify", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -452,7 +644,9 @@ func (c *dDLServiceClient) DropIndexes(ctx context.Context, in *DropIndexesReq, 
 
 // DDLServiceServer is the server API for DDLService service.
 type DDLServiceServer interface {
-	Execute(context.Context, *ExecuteReq) (*ExecuteResp, error)
+	Create(context.Context, *CreateReq) (*CreateResp, error)
+	Add(context.Context, *AddReq) (*AddResp, error)
+	Modify(context.Context, *ModifyReq) (*ModifyResp, error)
 	Indexes(context.Context, *IndexesReq) (*IndexesResp, error)
 	DropIndexes(context.Context, *DropIndexesReq) (*DropIndexesResp, error)
 }
@@ -461,8 +655,14 @@ type DDLServiceServer interface {
 type UnimplementedDDLServiceServer struct {
 }
 
-func (*UnimplementedDDLServiceServer) Execute(ctx context.Context, req *ExecuteReq) (*ExecuteResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Execute not implemented")
+func (*UnimplementedDDLServiceServer) Create(ctx context.Context, req *CreateReq) (*CreateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (*UnimplementedDDLServiceServer) Add(ctx context.Context, req *AddReq) (*AddResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
+}
+func (*UnimplementedDDLServiceServer) Modify(ctx context.Context, req *ModifyReq) (*ModifyResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Modify not implemented")
 }
 func (*UnimplementedDDLServiceServer) Indexes(ctx context.Context, req *IndexesReq) (*IndexesResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Indexes not implemented")
@@ -475,20 +675,56 @@ func RegisterDDLServiceServer(s *grpc.Server, srv DDLServiceServer) {
 	s.RegisterService(&_DDLService_serviceDesc, srv)
 }
 
-func _DDLService_Execute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExecuteReq)
+func _DDLService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DDLServiceServer).Execute(ctx, in)
+		return srv.(DDLServiceServer).Create(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.DDLService/Execute",
+		FullMethod: "/proto.DDLService/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DDLServiceServer).Execute(ctx, req.(*ExecuteReq))
+		return srv.(DDLServiceServer).Create(ctx, req.(*CreateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DDLService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DDLServiceServer).Add(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.DDLService/Add",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DDLServiceServer).Add(ctx, req.(*AddReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DDLService_Modify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModifyReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DDLServiceServer).Modify(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.DDLService/Modify",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DDLServiceServer).Modify(ctx, req.(*ModifyReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -534,8 +770,16 @@ var _DDLService_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*DDLServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Execute",
-			Handler:    _DDLService_Execute_Handler,
+			MethodName: "Create",
+			Handler:    _DDLService_Create_Handler,
+		},
+		{
+			MethodName: "Add",
+			Handler:    _DDLService_Add_Handler,
+		},
+		{
+			MethodName: "Modify",
+			Handler:    _DDLService_Modify_Handler,
 		},
 		{
 			MethodName: "Indexes",
