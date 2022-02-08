@@ -1,35 +1,51 @@
 package structor
 
-import (
-	"github.com/quanxiang-cloud/structor/pkg/errors"
-)
-
 type Expr func() Constructor
 
-var ddlExprs map[string]Expr
+var createExpr Expr
 
-func SetDdlConstructors(es map[string]Expr) {
-	ddlExprs = es
+func SetCreateExpr(e Expr) {
+	createExpr = e
 }
 
-func getDdlConstructors() map[string]Expr {
-	return ddlExprs
+func GetCreateExpr(table string, fields Fields) Constructor {
+	c := createExpr()
+	c.Set(table, fields...)
+	return c
 }
 
-func GetDdlConstructor(op string, column string, values ...*Field) (Constructor, error) {
-	exprs := getDdlConstructors()
-	if exprs == nil {
-		return nil, errors.ErrNoConstructor
-	}
+var addExpr Expr
 
-	expr, ok := exprs[op]
-	if !ok {
-		return nil, errors.ErrNoConstructor
-	}
+func SetAddExpr(e Expr) {
+	addExpr = e
+}
 
-	// TODO: check validity of field type
+func GetAddExpr(table string, fields Fields) Constructor {
+	c := addExpr()
+	c.Set(table, fields...)
+	return c
+}
 
-	constructor := expr()
-	constructor.Set(column, values...)
-	return constructor, nil
+var modifyExpr Expr
+
+func SetModifyExpr(e Expr) {
+	modifyExpr = e
+}
+
+func GetModifyExpr(table string, fields Fields) Constructor {
+	c := modifyExpr()
+	c.Set(table, fields...)
+	return c
+}
+
+var primary Expr
+
+func SetPrimaryExpr(e Expr) {
+	primary = e
+}
+
+func GetPriMaryExpr(table string, fields Fields) Constructor {
+	c := primary()
+	c.Set(table, fields...)
+	return c
 }
