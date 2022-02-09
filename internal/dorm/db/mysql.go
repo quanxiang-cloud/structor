@@ -77,6 +77,9 @@ func init() {
 	structor.SetAddExpr(add)
 	structor.SetModifyExpr(modify)
 	structor.SetPrimaryExpr(primary)
+	structor.SetIndexExpr(index)
+	structor.SetUniqueExpr(unique)
+	structor.SetDropIndexExpr(dropIndex)
 }
 
 type Dorm struct {
@@ -253,16 +256,16 @@ func (d *Dorm) exec(constructor structor.Constructor) error {
 	return d.db.Exec(builder.raw.String()).Error
 }
 
-func (d *Dorm) Index(ctx context.Context, name string) error {
-	// TODO:
-	return nil
-	// return d.Exec(ctx)
+func (d *Dorm) Index(ctx context.Context, constructor structor.Constructor) error {
+	return d.exec(constructor)
 }
 
-func (d *Dorm) DropIndexes(ctx context.Context) error {
-	// TODO:
-	return nil
-	// return d.Exec(ctx)
+func (d *Dorm) Unique(ctx context.Context, constructor structor.Constructor) error {
+	return d.exec(constructor)
+}
+
+func (d *Dorm) DropIndex(ctx context.Context, constructor structor.Constructor) error {
+	return d.exec(constructor)
 }
 
 const prefix = "c_"
@@ -337,7 +340,6 @@ func (d *Dorm) unmarshal(entities interface{}) error {
 		}
 	}
 	return nil
-
 }
 
 type MYSQL struct {
@@ -398,13 +400,4 @@ func (m *MYSQL) AddRawVal(content interface{}) {
 
 func (m *MYSQL) AddIndex(s string) {
 	m.WriteRaw(s)
-}
-
-func (m *MYSQL) Unique(unique bool) {
-	// nothing to do
-	return
-}
-
-func (m *MYSQL) IndexName(names []string) {
-	// nothing to do
 }

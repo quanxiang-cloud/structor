@@ -66,6 +66,9 @@ func init() {
 	structor.SetAddExpr(add)
 	structor.SetModifyExpr(modify)
 	structor.SetPrimaryExpr(primary)
+	structor.SetIndexExpr(index)
+	structor.SetUniqueExpr(unique)
+	structor.SetDropIndexExpr(dropIndex)
 }
 
 // Dorm dorm
@@ -273,26 +276,37 @@ func (d *Dorm) Primary(ctx context.Context, c structor.Constructor) error {
 	return nil
 }
 
-func (d *Dorm) Index(ctx context.Context, name string) error {
-	// 	_, err := d.C.Indexes().CreateOne(ctx, mongo.IndexModel{
-	// 		Keys:    d.builder.Keys,
-	// 		Options: options.Index().SetName(name).SetUnique(d.builder.IsUnique),
-	// 	})
+func (d *Dorm) Index(ctx context.Context, c structor.Constructor) error {
+	builder := &MONGO{}
+	c.Build(builder)
+	col := d.db.Collection(c.GetTable())
+	_, err := col.Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys:    builder.Keys,
+		Options: options.Index().SetName(c.GetIndex()).SetUnique(false),
+	})
 
-	// 	return err
-	// TODO:
-	return nil
+	return err
 }
 
-func (d *Dorm) DropIndexes(ctx context.Context) error {
-	// 	for _, name := range d.builder.Indexes {
-	// 		_, err := d.C.Indexes().DropOne(ctx, name)
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 	}
-	// TODO:
-	return nil
+func (d *Dorm) Unique(ctx context.Context, c structor.Constructor) error {
+	builder := &MONGO{}
+	c.Build(builder)
+	col := d.db.Collection(c.GetTable())
+	_, err := col.Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys:    builder.Keys,
+		Options: options.Index().SetName(c.GetIndex()).SetUnique(true),
+	})
+
+	return err
+}
+
+func (d *Dorm) DropIndex(ctx context.Context, c structor.Constructor) error {
+	builder := &MONGO{}
+	c.Build(builder)
+	col := d.db.Collection(c.GetTable())
+
+	_, err := col.Indexes().DropOne(ctx, c.GetIndex())
+	return err
 }
 
 func (d *Dorm) marshal(entities interface{}) error {
@@ -339,9 +353,6 @@ type MONGO struct {
 
 	Schema bson.M
 	Keys   bson.D
-
-	IsUnique bool
-	Indexes  []string
 }
 
 // WriteString write string
@@ -408,12 +419,4 @@ func (m *MONGO) AddRawVal(content interface{}) {
 
 func (m *MONGO) AddIndex(field string) {
 	m.Keys = append(m.Keys, bson.E{field, 1})
-}
-
-func (m *MONGO) Unique(unique bool) {
-	m.IsUnique = unique
-}
-
-func (m *MONGO) IndexName(names []string) {
-	m.Indexes = names
 }

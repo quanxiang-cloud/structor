@@ -29,6 +29,7 @@ type Dept interface {
 	Modify(ctx context.Context, c structor.Constructor) error
 	Primary(ctx context.Context, c structor.Constructor) error
 
-	Index(ctx context.Context, name string) error
-	DropIndexes(ctx context.Context) error
+	Index(ctx context.Context, c structor.Constructor) error
+	Unique(ctx context.Context, c structor.Constructor) error
+	DropIndex(ctx context.Context, c structor.Constructor) error
 }

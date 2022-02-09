@@ -105,7 +105,7 @@ func index() structor.Constructor {
 
 func (i *Index) Build(builder structor.Builder) {
 	for _, value := range i.Fields {
-		builder.WriteRaw(value.Title)
+		builder.AddIndex(value.Title)
 	}
 }
 
@@ -119,23 +119,18 @@ func unique() structor.Constructor {
 
 func (u *Unique) Build(builder structor.Builder) {
 	for _, value := range u.Fields {
-		builder.WriteRaw(value.Title)
+		builder.AddIndex(value.Title)
 	}
-	builder.Unique(u.IsUnique)
 }
 
-type DropIndexes struct {
-	structor.DropIndexes
+type DropIndex struct {
+	structor.DropIndex
 }
 
-func dropIndexes() structor.Constructor {
-	return &DropIndexes{}
+func dropIndex() structor.Constructor {
+	return &DropIndex{}
 }
 
-func (d *DropIndexes) Build(builder structor.Builder) {
-	indexes := make([]string, 0, len(d.Fields))
-	for _, value := range d.Fields {
-		indexes = append(indexes, value.Title)
-	}
-	builder.IndexName(indexes)
+func (d *DropIndex) Build(builder structor.Builder) {
+	return
 }

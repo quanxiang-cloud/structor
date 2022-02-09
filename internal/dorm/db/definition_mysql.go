@@ -99,7 +99,7 @@ func index() structor.Constructor {
 }
 
 func (i *Index) Build(builder structor.Builder) {
-	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` ADD INDEX `%s` (", i.Table, i.Fields.GenIndexName(i.GetTag())))
+	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` ADD INDEX `%s` (", i.Table, i.Name))
 	builder.WriteRaw(i.Fields.ConvertIndex())
 	builder.WriteRaw(");")
 }
@@ -113,21 +113,19 @@ func unique() structor.Constructor {
 }
 
 func (u *Unique) Build(builder structor.Builder) {
-	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` ADD UNIQUE `%s` ( ", u.Table, u.Fields.GenIndexName(u.GetTag())))
+	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` ADD UNIQUE `%s` ( ", u.Table, u.Name))
 	builder.WriteRaw(u.Fields.ConvertIndex())
 	builder.WriteRaw(");")
 }
 
-type DropIndexes struct {
-	structor.DropIndexes
+type DropIndex struct {
+	structor.DropIndex
 }
 
-func dropIndexes() structor.Constructor {
-	return &DropIndexes{}
+func dropIndex() structor.Constructor {
+	return &DropIndex{}
 }
 
-func (d *DropIndexes) Build(builder structor.Builder) {
-	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` DROP INDEX ", d.Table))
-	builder.WriteRaw(d.Fields.ConvertIndex())
-	builder.WriteRaw(";")
+func (d *DropIndex) Build(builder structor.Builder) {
+	builder.WriteRaw(fmt.Sprintf(" ALTER TABLE `%s` DROP INDEX `%s` ;", d.Table, d.Name))
 }

@@ -11,8 +11,9 @@ type DDLService interface {
 	Create(context.Context, *CreateReq) (*CreateResp, error)
 	Add(context.Context, *AddReq) (*AddResp, error)
 	Modify(context.Context, *ModifyReq) (*ModifyResp, error)
-	// Index(ctx context.Context, req *IndexReq) (*IndexResp, error)
-	// DropIndexes(ctx context.Context, req *DropIndexesReq) (*DropIndexesResp, error)
+	Index(ctx context.Context, req *IndexReq) (*IndexResp, error)
+	Unique(ctx context.Context, req *UniqueReq) (*UniqueResp, error)
+	DropIndex(ctx context.Context, req *DropIndexReq) (*DropIndexResp, error)
 }
 
 type Field = structor.Field
@@ -116,69 +117,69 @@ func (d *ddl) Modify(ctx context.Context, req *ModifyReq) (*ModifyResp, error) {
 // 	}, nil
 // }
 
-// type IndexReq struct {
-// 	Option string
-// 	Table  string
-// 	Fields []*Field
-// }
+type IndexReq struct {
+	ExecuteReq
+	IndexName string
+}
 
-// type IndexResp struct {
-// 	Index string
-// }
+type IndexResp struct {
+	IndexName string
+}
 
-// func (d *ddl) Index(ctx context.Context, req *IndexReq) (*IndexResp, error) {
-// 	c, err := convert(req.Option, req.Table, req.Fields...)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+func (d *ddl) Index(ctx context.Context, req *IndexReq) (*IndexResp, error) {
+	c := structor.GetIndexExpr(req.Table, req.IndexName, req.Fields)
 
-// 	sc := d.db.Build(req.Table, c)
-// 	indexName := genIndexName(req.Option, req.Fields...)
+	if err := d.db.Index(ctx, c); err != nil {
+		return nil, err
+	}
 
-// 	err = sc.Index(ctx, indexName)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	return &IndexResp{
+		IndexName: req.IndexName,
+	}, nil
+}
 
-// 	return &IndexResp{
-// 		Index: indexName,
-// 	}, nil
-// }
+type UniqueReq struct {
+	ExecuteReq
+	UniqueName string
+}
 
-// type DropIndexesReq struct {
-// 	Option string
-// 	Table  string
-// 	Fields []*Field
-// }
+type UniqueResp struct {
+	UniqueName string
+}
 
-// type DropIndexesResp struct {
-// }
+func (d *ddl) Unique(ctx context.Context, req *UniqueReq) (*UniqueResp, error) {
+	c := structor.GetUniqueExpr(req.Table, req.UniqueName, req.Fields)
 
-// func (d *ddl) DropIndexes(ctx context.Context, req *DropIndexesReq) (*DropIndexesResp, error) {
-// 	c, err := convert(req.Option, req.Table, req.Fields...)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	if err := d.db.Unique(ctx, c); err != nil {
+		return nil, err
+	}
 
-// 	sc := d.db.Build(req.Table, c)
+	return &UniqueResp{
+		UniqueName: req.UniqueName,
+	}, nil
+}
 
-// 	err = sc.DropIndexes(ctx)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return &DropIndexesResp{}, nil
+type DropIndexReq struct {
+	ExecuteReq
+	IndexName string
+}
 
-// }
+type DropIndexResp struct {
+	IndexName string
+}
+
+func (d *ddl) DropIndex(ctx context.Context, req *DropIndexReq) (*DropIndexResp, error) {
+	c := structor.GetDropIndexExpr(req.Table, req.IndexName, req.Fields)
+
+	if err := d.db.DropIndex(ctx, c); err != nil {
+		return nil, err
+	}
+
+	return &DropIndexResp{
+		IndexName: req.IndexName,
+	}, nil
+}
 
 // func convert(op string, table string, values ...*Field) (structor.Constructor, error) {
 // 	return structor.GetDdlConstructor(op, table, values...)
-// }
-
-// func genIndexName(op string, values ...*Field) string {
-// 	var builder strings.Builder
-// 	builder.WriteString(fmt.Sprintf("%s_", op))
-// 	for _, f := range values {
-// 		builder.WriteString(f.Title[:1])
-// 	}
-// 	return builder.String()
 // }

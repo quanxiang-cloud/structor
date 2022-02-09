@@ -36,28 +36,40 @@ message Field{
     bool notNull = 5;
 }
 
-message IndexesReq{
+message IndexReq{
     string tableName = 1;
-    string option = 2;
+    string indexName = 2;
     repeated string titles = 3;
 }
 
-message IndexesResp{
+message IndexResp{
     string indexName = 1;
 }
 
-message DropIndexesReq{
+message UniqueReq{
     string tableName = 1;
-    repeated string indexName = 2;
+    string indexName = 2;
+    repeated string titles = 3;
 }
 
-message DropIndexesResp{
+message UniqueResp{
+    string indexName = 1;
+}
+
+message DropIndexReq{
+    string tableName = 1;
+    string indexName = 2;
+}
+
+message DropIndexResp{
+    string indexName = 1;
 }
 
 service DDLService{
     rpc Create(CreateReq)returns(CreateResp);
     rpc Add(AddReq)returns(AddResp);
     rpc Modify(ModifyReq)returns(ModifyResp);
-    rpc Indexes(IndexesReq)returns(IndexesResp);
-    rpc DropIndexes(DropIndexesReq)returns(DropIndexesResp);
+    rpc Index(IndexReq)returns(IndexResp);
+    rpc Unique(UniqueReq)returns(UniqueResp);
+    rpc DropIndex(DropIndexReq)returns(DropIndexResp);
 }

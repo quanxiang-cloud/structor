@@ -58,31 +58,53 @@ func (d *ddlService) Modify(ctx context.Context, req *pb.ModifyReq) (*pb.ModifyR
 	}, nil
 }
 
-func (d *ddlService) Indexes(ctx context.Context, req *pb.IndexesReq) (*pb.IndexesResp, error) {
-	// resp, err := d.ddl.Index(ctx, &ddlservice.IndexReq{
-	// 	Option: req.Option,
-	// 	Table:  req.TableName,
-	// 	Fields: transformIndex(req.Titles),
-	// })
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// return &pb.IndexesResp{
-	// 	IndexName: resp.Index,
-	// }, nil
-	return nil, nil
+func (d *ddlService) Index(ctx context.Context, req *pb.IndexReq) (*pb.IndexResp, error) {
+	resp, err := d.ddl.Index(ctx, &ddlservice.IndexReq{
+		ExecuteReq: ddlservice.ExecuteReq{
+			Table:  req.TableName,
+			Fields: transformIndex(req.Titles),
+		},
+		IndexName: req.IndexName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.IndexResp{
+		IndexName: resp.IndexName,
+	}, nil
 }
 
-func (d *ddlService) DropIndexes(ctx context.Context, req *pb.DropIndexesReq) (*pb.DropIndexesResp, error) {
-	// _, err := d.ddl.DropIndexes(ctx, &ddlservice.DropIndexesReq{
-	// 	Option: structor.DropIndexesOpt,
-	// 	Table:  req.TableName,
-	// 	Fields: transformIndex(req.IndexName),
-	// })
-	// if err != nil {
-	// 	return nil, err
-	// }
-	return &pb.DropIndexesResp{}, nil
+func (d *ddlService) Unique(ctx context.Context, req *pb.UniqueReq) (*pb.UniqueResp, error) {
+	resp, err := d.ddl.Unique(ctx, &ddlservice.UniqueReq{
+		ExecuteReq: ddlservice.ExecuteReq{
+			Table:  req.TableName,
+			Fields: transformIndex(req.Titles),
+		},
+		UniqueName: req.IndexName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.UniqueResp{
+		IndexName: resp.UniqueName,
+	}, nil
+}
+
+func (d *ddlService) DropIndex(ctx context.Context, req *pb.DropIndexReq) (*pb.DropIndexResp, error) {
+	resp, err := d.ddl.DropIndex(ctx, &ddlservice.DropIndexReq{
+		ExecuteReq: ddlservice.ExecuteReq{
+			Table: req.TableName,
+		},
+		IndexName: req.IndexName,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.DropIndexResp{
+		IndexName: resp.IndexName,
+	}, nil
 }
 
 func transform(fields []*pb.Field) []*structor.Field {
