@@ -68,6 +68,10 @@ func (c *Create) Set(Table string, Fields ...*Field) {
 	c.Fields = Fields
 }
 
+func (c *Create) GetTable() string {
+	return c.Table
+}
+
 type Drop struct {
 	Table string
 }
@@ -78,6 +82,10 @@ func (d *Drop) GetTag() string {
 
 func (d *Drop) Set(Table string, Fields ...*Field) {
 	d.Table = Table
+}
+
+func (d *Drop) GetTable() string {
+	return d.Table
 }
 
 type Add struct {
@@ -94,6 +102,10 @@ func (a *Add) Set(Table string, Fields ...*Field) {
 	a.Fields = Fields
 }
 
+func (a *Add) GetTable() string {
+	return a.Table
+}
+
 type Del struct {
 	Table  string
 	Fields Fields
@@ -106,6 +118,10 @@ func (d *Del) GetTag() string {
 func (d *Del) Set(Table string, Fields ...*Field) {
 	d.Table = Table
 	d.Fields = Fields
+}
+
+func (d *Del) GetTable() string {
+	return d.Table
 }
 
 type Modify struct {
@@ -122,6 +138,10 @@ func (u *Modify) Set(Table string, Fields ...*Field) {
 	u.Fields = Fields
 }
 
+func (u *Modify) GetTable() string {
+	return u.Table
+}
+
 type Primary struct {
 	Table  string
 	Fields Fields
@@ -134,6 +154,10 @@ func (p *Primary) GetTag() string {
 func (p *Primary) Set(Table string, fields ...*Field) {
 	p.Table = Table
 	p.Fields = fields
+}
+
+func (p *Primary) GetTable() string {
+	return p.Table
 }
 
 type Index struct {
@@ -149,6 +173,10 @@ func (i *Index) GetTag() string {
 func (i *Index) Set(Table string, Fields ...*Field) {
 	i.Table = Table
 	i.Fields = Fields
+}
+
+func (i *Index) GetTable() string {
+	return i.Table
 }
 
 type Unique struct {
@@ -167,6 +195,10 @@ func (u *Unique) Set(Table string, Fields ...*Field) {
 	u.IsUnique = true
 }
 
+func (u *Unique) GetTable() string {
+	return u.Table
+}
+
 const DropIndexesOpt = "drop_indexes"
 
 type DropIndexes struct {
@@ -181,4 +213,8 @@ func (d *DropIndexes) GetTag() string {
 func (d *DropIndexes) Set(Table string, Fields ...*Field) {
 	d.Table = Table
 	d.Fields = Fields
+}
+
+func (d *DropIndexes) GetTable() string {
+	return d.Table
 }

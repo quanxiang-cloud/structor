@@ -4,6 +4,7 @@ package db
 
 import (
 	"github.com/quanxiang-cloud/structor/internal/dorm/structor"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type Create struct {
@@ -14,8 +15,24 @@ func create() structor.Constructor {
 	return &Create{}
 }
 
-func (c *Create) Build(table string, builder structor.Builder) {
-	builder.Create(true, c.Column)
+const (
+	jsonSchema = "$jsonSchema"
+	id         = "_id"
+)
+
+var defaultID = bson.M{
+	"bsonType": "object",
+	"required": []string{"_id"},
+	"properties": bson.M{
+		"_id": bson.M{
+			"bsonType": "string",
+		},
+	},
+}
+
+func (c *Create) Build(builder structor.Builder) {
+	builder.WriteRaw(jsonSchema)
+	builder.AddRawVal(defaultID)
 }
 
 type Drop struct {
@@ -26,7 +43,7 @@ func drop() structor.Constructor {
 	return &Drop{}
 }
 
-func (d *Drop) Build(table string, builder structor.Builder) {
+func (d *Drop) Build(builder structor.Builder) {
 	// do nothing
 }
 
@@ -38,7 +55,7 @@ func add() structor.Constructor {
 	return &Add{}
 }
 
-func (a *Add) Build(table string, builder structor.Builder) {
+func (a *Add) Build(builder structor.Builder) {
 	// do nothing
 }
 
@@ -50,7 +67,7 @@ func del() structor.Constructor {
 	return &Del{}
 }
 
-func (d *Del) Build(table string, builder structor.Builder) {
+func (d *Del) Build(builder structor.Builder) {
 	// do nothing
 }
 
@@ -62,8 +79,20 @@ func modify() structor.Constructor {
 	return &Modify{}
 }
 
-func (m *Modify) Build(table string, builder structor.Builder) {
+func (m *Modify) Build(builder structor.Builder) {
 	// do nothing
+}
+
+type Primary struct {
+	structor.Primary
+}
+
+func primary() structor.Constructor {
+	return &Primary{}
+}
+
+func (p *Primary) Build(builder structor.Builder) {
+	builder.AddIndex(id)
 }
 
 type Index struct {
@@ -74,8 +103,8 @@ func index() structor.Constructor {
 	return &Index{}
 }
 
-func (i *Index) Build(table string, builder structor.Builder) {
-	for _, value := range i.Values {
+func (i *Index) Build(builder structor.Builder) {
+	for _, value := range i.Fields {
 		builder.WriteRaw(value.Title)
 	}
 }
@@ -88,8 +117,8 @@ func unique() structor.Constructor {
 	return &Unique{}
 }
 
-func (u *Unique) Build(table string, builder structor.Builder) {
-	for _, value := range u.Values {
+func (u *Unique) Build(builder structor.Builder) {
+	for _, value := range u.Fields {
 		builder.WriteRaw(value.Title)
 	}
 	builder.Unique(u.IsUnique)
@@ -103,9 +132,9 @@ func dropIndexes() structor.Constructor {
 	return &DropIndexes{}
 }
 
-func (d *DropIndexes) Build(table string, builder structor.Builder) {
-	indexes := make([]string, 0, len(d.Values))
-	for _, value := range d.Values {
+func (d *DropIndexes) Build(builder structor.Builder) {
+	indexes := make([]string, 0, len(d.Fields))
+	for _, value := range d.Fields {
 		indexes = append(indexes, value.Title)
 	}
 	builder.IndexName(indexes)

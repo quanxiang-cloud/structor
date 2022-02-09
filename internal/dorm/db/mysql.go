@@ -300,6 +300,16 @@ func (m *MYSQL) WriteRaw(s string) {
 	m.raw.WriteString(s)
 }
 
+func (m *MYSQL) AddRawVal(content interface{}) {
+	if s, ok := content.(string); ok {
+		m.WriteRaw(s)
+	}
+}
+
+func (m *MYSQL) AddIndex(s string) {
+	m.WriteRaw(s)
+}
+
 func (m *MYSQL) Unique(unique bool) {
 	// nothing to do
 	return

@@ -60,14 +60,10 @@ func init() {
 		(&Max{}).GetTag(): max,
 	})
 
-	structor.SetDdlConstructors(map[string]structor.Expr{
-		(&Create{}).GetTag():      create,
-		(&Add{}).GetTag():         add,
-		(&Modify{}).GetTag():      modify,
-		(&Index{}).GetTag():       index,
-		(&Unique{}).GetTag():      unique,
-		(&DropIndexes{}).GetTag(): dropIndexes,
-	})
+	structor.SetCreateExpr(create)
+	structor.SetAddExpr(add)
+	structor.SetModifyExpr(modify)
+	structor.SetPrimaryExpr(primary)
 }
 
 // Dorm dorm
@@ -244,68 +240,68 @@ func (d *Dorm) Delete(ctx context.Context) (int64, error) {
 	return result.DeletedCount, err
 }
 
-func (d *Dorm) Build(table string, expr structor.Constructor) dorm.Dept {
-	dorm := &Dorm{
-		db:      d.db,
-		C:       d.db.Collection(table),
-		builder: new(MONGO),
-	}
-	expr.Build(table, dorm.builder)
-	return dorm
+// ************************************************************************************************************
+
+func (d *Dorm) Create(ctx context.Context, c structor.Constructor) error {
+	builder := &MONGO{}
+	c.Build(builder)
+	opts := options.CreateCollection().SetValidator(builder.Schema)
+	err := d.db.CreateCollection(ctx, c.GetTable(), opts)
+	return err
 }
 
-func (d *Dorm) Exec(c context.Context) error {
-	if d.builder.IsCreate {
-		jsonSchema := bson.M{
-			"bsonType": "object",
-			"required": []string{"_id"},
-			"properties": bson.M{
-				"_id": bson.M{
-					"bsonType": "string",
-				},
-			},
-		}
-		validator := bson.M{
-			"$jsonSchema": jsonSchema,
-		}
-		opts := options.CreateCollection().SetValidator(validator)
+func (d *Dorm) Add(ctx context.Context, c structor.Constructor) error {
+	return nil
+}
 
-		err := d.db.CreateCollection(c, d.builder.ColName, opts)
-		if err != nil {
-			return err
-		}
-	}
+func (d *Dorm) Modify(ctx context.Context, c structor.Constructor) error {
+	return nil
+}
+
+func (d *Dorm) Primary(ctx context.Context, c structor.Constructor) error {
+	// BUG: duplicate index in collection, its automatically created.
+	// builder := &MONGO{}
+	// c.Build(builder)
+	// col := d.db.Collection(c.GetTable())
+	// _, err := col.Indexes().CreateOne(ctx, mongo.IndexModel{
+	// 	Keys:    builder.Keys,
+	// 	Options: options.Index().SetUnique(true),
+	// })
 	return nil
 }
 
 func (d *Dorm) Index(ctx context.Context, name string) error {
-	_, err := d.C.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys:    d.builder.Keys,
-		Options: options.Index().SetName(name).SetUnique(d.builder.IsUnique),
-	})
+	// 	_, err := d.C.Indexes().CreateOne(ctx, mongo.IndexModel{
+	// 		Keys:    d.builder.Keys,
+	// 		Options: options.Index().SetName(name).SetUnique(d.builder.IsUnique),
+	// 	})
 
-	return err
+	// 	return err
+	// TODO:
+	return nil
 }
 
 func (d *Dorm) DropIndexes(ctx context.Context) error {
-	for _, name := range d.builder.Indexes {
-		_, err := d.C.Indexes().DropOne(ctx, name)
-		if err != nil {
-			return err
-		}
-	}
+	// 	for _, name := range d.builder.Indexes {
+	// 		_, err := d.C.Indexes().DropOne(ctx, name)
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 	}
+	// TODO:
 	return nil
 }
 
 // MONGO mongo
 type MONGO struct {
-	Vars     bson.M
-	Agg      bson.M
-	Keys     bson.D
+	Vars bson.M
+	Agg  bson.M
+
+	Schema bson.M
+	Keys   bson.D
+
 	IsUnique bool
 	Indexes  []string
-	IsCreate bool
-	ColName  string
 }
 
 // WriteString write string
@@ -358,6 +354,19 @@ func (m *MONGO) AddAggVar(key string, value interface{}) {
 }
 
 func (m *MONGO) WriteRaw(field string) {
+	m.Schema = bson.M{
+		field: nil,
+	}
+}
+
+func (m *MONGO) AddRawVal(content interface{}) {
+	for k := range m.Schema {
+		m.Schema[k] = content
+		return
+	}
+}
+
+func (m *MONGO) AddIndex(field string) {
 	m.Keys = append(m.Keys, bson.E{field, 1})
 }
 
@@ -367,11 +376,4 @@ func (m *MONGO) Unique(unique bool) {
 
 func (m *MONGO) IndexName(names []string) {
 	m.Indexes = names
-}
-
-func (m *MONGO) Create(f bool, name ...string) {
-	m.IsCreate = f
-	if len(name) > 0 {
-		m.ColName = name[0]
-	}
 }
