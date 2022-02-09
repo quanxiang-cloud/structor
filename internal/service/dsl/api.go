@@ -2,22 +2,19 @@ package dsl
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"reflect"
-	"strings"
 
 	"github.com/quanxiang-cloud/structor/internal/dorm"
 	"github.com/quanxiang-cloud/structor/internal/dorm/clause"
 )
 
 type DSLService interface {
-	FindOne(ctx context.Context, req *FindOneReq, apiOpts ...APIOption) (*FindOneResp, error)
-	Find(ctx context.Context, req *FindReq, apiOpts ...APIOption) (*FindResp, error)
-	Count(ctx context.Context, req *CountReq, apiOpts ...APIOption) (*CountResp, error)
-	Insert(ctx context.Context, req *InsertReq, apiOpts ...APIOption) (*InsertResp, error)
-	Update(ctx context.Context, req *UpdateReq, apiOpts ...APIOption) (*UpdateResp, error)
-	Delete(ctx context.Context, req *DeleteReq, apiOpts ...APIOption) (*DeleteResp, error)
+	FindOne(ctx context.Context, req *FindOneReq) (*FindOneResp, error)
+	Find(ctx context.Context, req *FindReq) (*FindResp, error)
+	Count(ctx context.Context, req *CountReq) (*CountResp, error)
+	Insert(ctx context.Context, req *InsertReq) (*InsertResp, error)
+	Update(ctx context.Context, req *UpdateReq) (*UpdateResp, error)
+	Delete(ctx context.Context, req *DeleteReq) (*DeleteResp, error)
 }
 
 type dsl struct {
@@ -41,85 +38,6 @@ func WithDB(db dorm.Dorm) Option {
 	}
 }
 
-const suffix = "_c"
-
-type APIOption func(...interface{}) error
-
-func WithMarshal() APIOption {
-	return func(entities ...interface{}) error {
-		for _, entity := range entities {
-			ek := reflect.TypeOf(entity).Kind()
-
-			switch ek {
-			case reflect.Ptr:
-				data := reflect.ValueOf(entity).Elem()
-				if !data.CanInterface() {
-					continue
-				}
-
-				return WithMarshal()(data.Interface())
-			case reflect.Map:
-				iter := reflect.ValueOf(entity).MapRange()
-				for iter.Next() {
-					if !iter.Value().CanInterface() {
-						continue
-					}
-
-					if !strings.HasSuffix(iter.Key().String(), suffix) {
-						continue
-					}
-
-					buf, err := json.Marshal(iter.Value().Interface())
-					if err != nil {
-						return err
-					}
-
-					reflect.ValueOf(entity).SetMapIndex(iter.Key(), reflect.ValueOf(string(buf)))
-				}
-			}
-		}
-		return nil
-	}
-}
-
-func WithUnmarshal() APIOption {
-	return func(entities ...interface{}) error {
-		for _, entity := range entities {
-			ek := reflect.TypeOf(entity).Kind()
-
-			switch ek {
-			case reflect.Ptr:
-				data := reflect.ValueOf(entity).Elem()
-				if !data.CanInterface() {
-					continue
-				}
-
-				return WithUnmarshal()(data.Interface())
-			case reflect.Map:
-				iter := reflect.ValueOf(entity).MapRange()
-				for iter.Next() {
-					if !iter.Value().CanInterface() {
-						continue
-					}
-
-					if !strings.HasSuffix(iter.Key().String(), suffix) {
-						continue
-					}
-
-					var elem interface{}
-					err := json.Unmarshal([]byte(iter.Value().Elem().String()), &elem)
-					if err != nil {
-						return err
-					}
-
-					reflect.ValueOf(entity).SetMapIndex(iter.Key(), reflect.ValueOf(elem))
-				}
-			}
-		}
-		return nil
-	}
-}
-
 type FindOneReq struct {
 	TableName string
 	DSL       DSL
@@ -130,7 +48,7 @@ type FindOneResp struct {
 }
 
 // FIXME: How to find the structure compressed into flat layer
-func (d *dsl) FindOne(ctx context.Context, req *FindOneReq, apiOpts ...APIOption) (*FindOneResp, error) {
+func (d *dsl) FindOne(ctx context.Context, req *FindOneReq) (*FindOneResp, error) {
 	where, aggs, err := d.convert(req.DSL)
 	if err != nil {
 		return &FindOneResp{}, err
@@ -148,10 +66,6 @@ func (d *dsl) FindOne(ctx context.Context, req *FindOneReq, apiOpts ...APIOption
 	data, err := ql.FindOne(ctx)
 	if err != nil {
 		return &FindOneResp{}, err
-	}
-
-	for _, opt := range apiOpts {
-		opt(data)
 	}
 
 	return &FindOneResp{
@@ -173,7 +87,7 @@ type FindResp struct {
 }
 
 // FIXME: How to find the structure compressed into flat layer
-func (d *dsl) Find(ctx context.Context, req *FindReq, apiOpts ...APIOption) (*FindResp, error) {
+func (d *dsl) Find(ctx context.Context, req *FindReq) (*FindResp, error) {
 	where, aggs, err := d.convert(req.DSL)
 	if err != nil {
 		return &FindResp{}, err
@@ -201,10 +115,6 @@ func (d *dsl) Find(ctx context.Context, req *FindReq, apiOpts ...APIOption) (*Fi
 		dl = append(dl, v)
 	}
 
-	for _, opt := range apiOpts {
-		opt(dl...)
-	}
-
 	return &FindResp{
 		Data:  dl,
 		Count: int64(len(dl)),
@@ -220,7 +130,7 @@ type CountResp struct {
 	Data int64
 }
 
-func (d *dsl) Count(ctx context.Context, req *CountReq, apiOpts ...APIOption) (*CountResp, error) {
+func (d *dsl) Count(ctx context.Context, req *CountReq) (*CountResp, error) {
 	where, aggs, err := d.convert(req.DSL)
 	if err != nil {
 		return &CountResp{}, err
@@ -255,7 +165,7 @@ type UpdateResp struct {
 	Count int64
 }
 
-func (d *dsl) Update(ctx context.Context, req *UpdateReq, apiOpts ...APIOption) (*UpdateResp, error) {
+func (d *dsl) Update(ctx context.Context, req *UpdateReq) (*UpdateResp, error) {
 	where, _, err := d.convert(req.DSL)
 	if err != nil {
 		return &UpdateResp{}, err
@@ -264,10 +174,6 @@ func (d *dsl) Update(ctx context.Context, req *UpdateReq, apiOpts ...APIOption) 
 	ql := d.db.Table(req.TableName)
 	if where != nil {
 		ql = ql.Where(where)
-	}
-
-	for _, opt := range apiOpts {
-		opt(req.Entity)
 	}
 
 	count, err := ql.Update(ctx, req.Entity)
@@ -285,12 +191,8 @@ type InsertResp struct {
 	Count int64
 }
 
-func (d *dsl) Insert(ctx context.Context, req *InsertReq, apiOpts ...APIOption) (*InsertResp, error) {
+func (d *dsl) Insert(ctx context.Context, req *InsertReq) (*InsertResp, error) {
 	ql := d.db.Table(req.TableName)
-
-	for _, opt := range apiOpts {
-		opt(req.Entities...)
-	}
 
 	count, err := ql.Insert(ctx, req.Entities...)
 	if err != nil {
@@ -311,7 +213,7 @@ type DeleteResp struct {
 	Count int64
 }
 
-func (d *dsl) Delete(ctx context.Context, req *DeleteReq, apiOpts ...APIOption) (*DeleteResp, error) {
+func (d *dsl) Delete(ctx context.Context, req *DeleteReq) (*DeleteResp, error) {
 	where, _, err := d.convert(req.DSL)
 	if err != nil {
 		return &DeleteResp{}, err

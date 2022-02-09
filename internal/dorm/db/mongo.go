@@ -5,6 +5,7 @@ package db
 import (
 	"context"
 	"flag"
+	"reflect"
 	"strings"
 
 	mgc "github.com/quanxiang-cloud/cabin/tailormade/db/mongo"
@@ -12,6 +13,7 @@ import (
 	"github.com/quanxiang-cloud/structor/internal/dorm/clause"
 	"github.com/quanxiang-cloud/structor/internal/dorm/structor"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -172,7 +174,7 @@ func (d *Dorm) find(ctx context.Context) ([]map[string]interface{}, error) {
 	if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
 		return nil, nil
 	}
-
+	d.unmarshal(result)
 	return result, err
 }
 
@@ -209,6 +211,7 @@ func (d *Dorm) FindOne(ctx context.Context) (map[string]interface{}, error) {
 	if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
 		return nil, nil
 	}
+	d.unmarshal(result)
 	return result, err
 }
 
@@ -294,6 +297,43 @@ func (d *Dorm) DropIndexes(ctx context.Context) error {
 			return err
 		}
 	}
+	return nil
+}
+
+func (d *Dorm) marshal(entities interface{}) error {
+	// nothing to do
+	return nil
+}
+
+func (d *Dorm) unmarshal(entities interface{}) error {
+	var doUnmarshal = func(entity map[string]interface{}) error {
+		for key, value := range entity {
+			// TODO: Whether to judge the type of interface {}
+			pa, ok := value.(primitive.A)
+			if !ok {
+				continue
+			}
+			reflect.ValueOf(entity).
+				SetMapIndex(reflect.ValueOf(key), reflect.ValueOf([]interface{}(pa)))
+		}
+		return nil
+	}
+
+	switch v := entities.(type) {
+	case []map[string]interface{}:
+		for _, entity := range v {
+			err := doUnmarshal(entity)
+			if err != nil {
+				return err
+			}
+		}
+	case map[string]interface{}:
+		err := doUnmarshal(v)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

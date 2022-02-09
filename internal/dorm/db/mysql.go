@@ -5,8 +5,10 @@ package db
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/quanxiang-cloud/cabin/logger"
@@ -171,6 +173,10 @@ func (d *Dorm) Order(order ...string) dorm.Dorm {
 func (d *Dorm) FindOne(ctx context.Context) (map[string]interface{}, error) {
 	ret := make(map[string]interface{})
 	err := d.db.Where(d.builder.val.Condition.String(), d.builder.val.vars...).Find(&ret).Error
+	if err != nil {
+		return nil, err
+	}
+	err = d.unmarshal(ret)
 	return ret, err
 }
 
@@ -180,6 +186,11 @@ func (d *Dorm) Find(ctx context.Context) ([]map[string]interface{}, error) {
 		d.db = d.db.Select(d.builder.agg.String())
 	}
 	err := d.db.Where(d.builder.val.Condition.String(), d.builder.val.vars...).Find(&ret).Error
+	if err != nil {
+		return nil, err
+	}
+
+	err = d.unmarshal(ret)
 	return ret, err
 }
 
@@ -201,7 +212,11 @@ func (d *Dorm) Insert(ctx context.Context, entities ...interface{}) (int64, erro
 		ormEntities = append(ormEntities, e)
 	}
 
-	err := d.db.Debug().CreateInBatches(ormEntities, BATCHSIZE).Error
+	err := d.marshal(ormEntities)
+	if err != nil {
+		return 0, err
+	}
+	err = d.db.Debug().CreateInBatches(ormEntities, BATCHSIZE).Error
 	ret = int64(len(entities))
 	return ret, err
 }
@@ -240,6 +255,81 @@ func (d *Dorm) Index(ctx context.Context, name string) error {
 
 func (d *Dorm) DropIndexes(ctx context.Context) error {
 	return d.Exec(ctx)
+}
+
+const prefix = "c_"
+
+func (d *Dorm) marshal(entities interface{}) error {
+	var doMarshal = func(entity map[string]interface{}) error {
+		for key, value := range entity {
+			// TODO: Whether to judge the type of interface {}
+			_, ok := value.([]interface{})
+			if !ok {
+				continue
+			}
+			data, err := json.Marshal(value)
+			if err != nil {
+				return err
+			}
+			reflect.ValueOf(entity).
+				SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(prefix+string(data)))
+		}
+		return nil
+	}
+
+	switch v := entities.(type) {
+	case []map[string]interface{}:
+		for _, entity := range v {
+			err := doMarshal(entity)
+			if err != nil {
+				return err
+			}
+		}
+	case map[string]interface{}:
+		err := doMarshal(v)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (d *Dorm) unmarshal(entities interface{}) error {
+	var doUnmarshal = func(entity map[string]interface{}) error {
+		for key, value := range entity {
+			str, ok := value.(string)
+			if !ok {
+				continue
+			}
+			if strings.HasPrefix(str, prefix) {
+				data := strings.TrimPrefix(str, prefix)
+				var elem interface{}
+				err := json.Unmarshal([]byte(data), &elem)
+				if err != nil {
+					return err
+				}
+				reflect.ValueOf(entity).
+					SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(elem))
+			}
+		}
+		return nil
+	}
+	switch v := entities.(type) {
+	case []map[string]interface{}:
+		for _, entity := range v {
+			err := doUnmarshal(entity)
+			if err != nil {
+				return err
+			}
+		}
+	case map[string]interface{}:
+		err := doUnmarshal(v)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+
 }
 
 type MYSQL struct {

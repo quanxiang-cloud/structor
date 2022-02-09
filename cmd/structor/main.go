@@ -9,7 +9,7 @@ import (
 
 func main() {
 	var port string
-	flag.StringVar(&port, "port", ":80", "grpc port")
+	flag.StringVar(&port, "port", ":1080", "grpc port")
 
 	flag.Parse()
 
