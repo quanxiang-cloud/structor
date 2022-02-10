@@ -71,6 +71,8 @@ func init() {
 		(&Avg{}).GetTag(): avg,
 		(&Min{}).GetTag(): min,
 		(&Max{}).GetTag(): max,
+
+		(&Bool{}).GetTag(): bool1,
 	})
 
 	structor.SetCreateExpr(create)
@@ -268,22 +270,19 @@ func (d *Dorm) DropIndex(ctx context.Context, constructor structor.Constructor) 
 	return d.exec(constructor)
 }
 
-const prefix = "c_"
+const suffix = "_c"
 
 func (d *Dorm) marshal(entities interface{}) error {
 	var doMarshal = func(entity map[string]interface{}) error {
 		for key, value := range entity {
-			// TODO: Whether to judge the type of interface {}
-			_, ok := value.([]interface{})
-			if !ok {
-				continue
+			if strings.HasSuffix(key, suffix) {
+				data, err := json.Marshal(value)
+				if err != nil {
+					return err
+				}
+				reflect.ValueOf(entity).
+					SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(string(data)))
 			}
-			data, err := json.Marshal(value)
-			if err != nil {
-				return err
-			}
-			reflect.ValueOf(entity).
-				SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(prefix+string(data)))
 		}
 		return nil
 	}
@@ -308,12 +307,11 @@ func (d *Dorm) marshal(entities interface{}) error {
 func (d *Dorm) unmarshal(entities interface{}) error {
 	var doUnmarshal = func(entity map[string]interface{}) error {
 		for key, value := range entity {
-			str, ok := value.(string)
+			data, ok := value.(string)
 			if !ok {
 				continue
 			}
-			if strings.HasPrefix(str, prefix) {
-				data := strings.TrimPrefix(str, prefix)
+			if strings.HasSuffix(key, suffix) {
 				var elem interface{}
 				err := json.Unmarshal([]byte(data), &elem)
 				if err != nil {
@@ -325,6 +323,7 @@ func (d *Dorm) unmarshal(entities interface{}) error {
 		}
 		return nil
 	}
+
 	switch v := entities.(type) {
 	case []map[string]interface{}:
 		for _, entity := range v {

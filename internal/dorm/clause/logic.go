@@ -64,3 +64,17 @@ func (r *RANGE) Set(column string, values ...interface{}) {
 	r.Column = column
 	r.Vars = values
 }
+
+type Bool struct {
+	Column string
+	Vars   []interface{}
+}
+
+func (b *Bool) GetTag() string {
+	return "bool"
+}
+
+func (b *Bool) Set(column string, values ...interface{}) {
+	b.Column = column
+	b.Vars = values
+}

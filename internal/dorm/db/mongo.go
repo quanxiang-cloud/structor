@@ -60,6 +60,8 @@ func init() {
 		(&Avg{}).GetTag(): avg,
 		(&Min{}).GetTag(): min,
 		(&Max{}).GetTag(): max,
+
+		(&Bool{}).GetTag(): bool1,
 	})
 
 	structor.SetCreateExpr(create)
