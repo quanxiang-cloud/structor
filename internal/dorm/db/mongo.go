@@ -5,11 +5,15 @@ package db
 import (
 	"context"
 	"flag"
+	"reflect"
 	"strings"
 
 	mgc "github.com/quanxiang-cloud/cabin/tailormade/db/mongo"
+	"github.com/quanxiang-cloud/structor/internal/dorm"
 	"github.com/quanxiang-cloud/structor/internal/dorm/clause"
+	"github.com/quanxiang-cloud/structor/internal/dorm/structor"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -56,7 +60,17 @@ func init() {
 		(&Avg{}).GetTag(): avg,
 		(&Min{}).GetTag(): min,
 		(&Max{}).GetTag(): max,
+
+		(&Bool{}).GetTag(): bool1,
 	})
+
+	structor.SetCreateExpr(create)
+	structor.SetAddExpr(add)
+	structor.SetModifyExpr(modify)
+	structor.SetPrimaryExpr(primary)
+	structor.SetIndexExpr(index)
+	structor.SetUniqueExpr(unique)
+	structor.SetDropIndexExpr(dropIndex)
 }
 
 // Dorm dorm
@@ -95,7 +109,7 @@ func New() (*Dorm, error) {
 	}, nil
 }
 
-func (d *Dorm) Table(tablename string) *Dorm {
+func (d *Dorm) Table(tablename string) dorm.Dorm {
 	return &Dorm{
 		C:       d.db.Collection(tablename),
 		builder: new(MONGO),
@@ -103,12 +117,12 @@ func (d *Dorm) Table(tablename string) *Dorm {
 	}
 }
 
-func (d *Dorm) Where(expr clause.Expression) *Dorm {
+func (d *Dorm) Where(expr clause.Expression) dorm.Dorm {
 	expr.Build(d.builder)
 	return d
 }
 
-func (d *Dorm) Select(exprs ...clause.Expression) *Dorm {
+func (d *Dorm) Select(exprs ...clause.Expression) dorm.Dorm {
 	bsons := make([]bson.M, 0)
 	if vars := d.builder.Vars; len(vars) != 0 {
 		bsons = append(bsons, bson.M{"$match": vars})
@@ -126,17 +140,17 @@ func (d *Dorm) Select(exprs ...clause.Expression) *Dorm {
 	return d
 }
 
-func (d *Dorm) Limit(limit int64) *Dorm {
+func (d *Dorm) Limit(limit int64) dorm.Dorm {
 	d.opt = d.opt.SetLimit(limit)
 	return d
 }
 
-func (d *Dorm) Offset(offset int64) *Dorm {
+func (d *Dorm) Offset(offset int64) dorm.Dorm {
 	d.opt = d.opt.SetSkip(offset)
 	return d
 }
 
-func (d *Dorm) Order(arr ...string) *Dorm {
+func (d *Dorm) Order(arr ...string) dorm.Dorm {
 	sort := make(bson.D, 0, len(arr))
 	for _, elem := range arr {
 		if strings.HasPrefix(elem, "-") {
@@ -161,7 +175,7 @@ func (d *Dorm) find(ctx context.Context) ([]map[string]interface{}, error) {
 	if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
 		return nil, nil
 	}
-
+	d.unmarshal(result)
 	return result, err
 }
 
@@ -198,6 +212,7 @@ func (d *Dorm) FindOne(ctx context.Context) (map[string]interface{}, error) {
 	if err == mongo.ErrNoDocuments || err == mongo.ErrNilDocument {
 		return nil, nil
 	}
+	d.unmarshal(result)
 	return result, err
 }
 
@@ -233,10 +248,113 @@ func (d *Dorm) Delete(ctx context.Context) (int64, error) {
 	return result.DeletedCount, err
 }
 
+// ************************************************************************************************************
+
+func (d *Dorm) Create(ctx context.Context, c structor.Constructor) error {
+	builder := &MONGO{}
+	c.Build(builder)
+	opts := options.CreateCollection().SetValidator(builder.Schema)
+	err := d.db.CreateCollection(ctx, c.GetTable(), opts)
+	return err
+}
+
+func (d *Dorm) Add(ctx context.Context, c structor.Constructor) error {
+	return nil
+}
+
+func (d *Dorm) Modify(ctx context.Context, c structor.Constructor) error {
+	return nil
+}
+
+func (d *Dorm) Primary(ctx context.Context, c structor.Constructor) error {
+	// BUG: duplicate index in collection, its automatically created.
+	// builder := &MONGO{}
+	// c.Build(builder)
+	// col := d.db.Collection(c.GetTable())
+	// _, err := col.Indexes().CreateOne(ctx, mongo.IndexModel{
+	// 	Keys:    builder.Keys,
+	// 	Options: options.Index().SetUnique(true),
+	// })
+	return nil
+}
+
+func (d *Dorm) Index(ctx context.Context, c structor.Constructor) error {
+	builder := &MONGO{}
+	c.Build(builder)
+	col := d.db.Collection(c.GetTable())
+	_, err := col.Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys:    builder.Keys,
+		Options: options.Index().SetName(c.GetIndex()).SetUnique(false),
+	})
+
+	return err
+}
+
+func (d *Dorm) Unique(ctx context.Context, c structor.Constructor) error {
+	builder := &MONGO{}
+	c.Build(builder)
+	col := d.db.Collection(c.GetTable())
+	_, err := col.Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys:    builder.Keys,
+		Options: options.Index().SetName(c.GetIndex()).SetUnique(true),
+	})
+
+	return err
+}
+
+func (d *Dorm) DropIndex(ctx context.Context, c structor.Constructor) error {
+	builder := &MONGO{}
+	c.Build(builder)
+	col := d.db.Collection(c.GetTable())
+
+	_, err := col.Indexes().DropOne(ctx, c.GetIndex())
+	return err
+}
+
+func (d *Dorm) marshal(entities interface{}) error {
+	// nothing to do
+	return nil
+}
+
+func (d *Dorm) unmarshal(entities interface{}) error {
+	var doUnmarshal = func(entity map[string]interface{}) error {
+		for key, value := range entity {
+			// TODO: Whether to judge the type of interface {}
+			pa, ok := value.(primitive.A)
+			if !ok {
+				continue
+			}
+			reflect.ValueOf(entity).
+				SetMapIndex(reflect.ValueOf(key), reflect.ValueOf([]interface{}(pa)))
+		}
+		return nil
+	}
+
+	switch v := entities.(type) {
+	case []map[string]interface{}:
+		for _, entity := range v {
+			err := doUnmarshal(entity)
+			if err != nil {
+				return err
+			}
+		}
+	case map[string]interface{}:
+		err := doUnmarshal(v)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MONGO mongo
 type MONGO struct {
 	Vars bson.M
 	Agg  bson.M
+
+	Schema bson.M
+	Keys   bson.D
 }
 
 // WriteString write string
@@ -286,4 +404,21 @@ func (m *MONGO) AddAggVar(key string, value interface{}) {
 		}
 	}
 	m.Agg[key] = value
+}
+
+func (m *MONGO) WriteRaw(field string) {
+	m.Schema = bson.M{
+		field: nil,
+	}
+}
+
+func (m *MONGO) AddRawVal(content interface{}) {
+	for k := range m.Schema {
+		m.Schema[k] = content
+		return
+	}
+}
+
+func (m *MONGO) AddIndex(field string) {
+	m.Keys = append(m.Keys, bson.E{field, 1})
 }

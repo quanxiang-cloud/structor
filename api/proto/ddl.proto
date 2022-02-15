@@ -1,0 +1,75 @@
+syntax = "proto3";
+package proto;
+
+message CreateReq{
+    string tableName = 1;
+    repeated Field fields = 3;
+}
+
+message CreateResp {
+    string tableName = 1;
+}
+
+message AddReq {
+    string tableName = 1;
+    repeated Field fields = 3;
+}
+
+message AddResp {
+    string tableName = 1;
+}
+
+message ModifyReq {
+    string tableName = 1;
+    repeated Field fields = 3;
+}
+
+message ModifyResp {
+    string tableName = 1;
+}
+
+message Field{
+    string title = 1;
+    string type = 2;
+    int64 max = 3;
+    string comment = 4;
+    bool notNull = 5;
+}
+
+message IndexReq{
+    string tableName = 1;
+    string indexName = 2;
+    repeated string titles = 3;
+}
+
+message IndexResp{
+    string indexName = 1;
+}
+
+message UniqueReq{
+    string tableName = 1;
+    string indexName = 2;
+    repeated string titles = 3;
+}
+
+message UniqueResp{
+    string indexName = 1;
+}
+
+message DropIndexReq{
+    string tableName = 1;
+    string indexName = 2;
+}
+
+message DropIndexResp{
+    string indexName = 1;
+}
+
+service DDLService{
+    rpc Create(CreateReq)returns(CreateResp);
+    rpc Add(AddReq)returns(AddResp);
+    rpc Modify(ModifyReq)returns(ModifyResp);
+    rpc Index(IndexReq)returns(IndexResp);
+    rpc Unique(UniqueReq)returns(UniqueResp);
+    rpc DropIndex(DropIndexReq)returns(DropIndexResp);
+}

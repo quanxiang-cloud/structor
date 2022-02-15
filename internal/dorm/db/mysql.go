@@ -5,14 +5,17 @@ package db
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/quanxiang-cloud/cabin/logger"
 	msc "github.com/quanxiang-cloud/cabin/tailormade/db/mysql"
 	"github.com/quanxiang-cloud/structor/internal/dorm"
 	"github.com/quanxiang-cloud/structor/internal/dorm/clause"
+	"github.com/quanxiang-cloud/structor/internal/dorm/structor"
 	"gorm.io/gorm"
 )
 
@@ -31,6 +34,10 @@ var (
 
 	maxIdleConns int
 	maxOpenConns int
+
+	engine  string
+	charset string
+	collate string
 )
 
 func init() {
@@ -42,6 +49,9 @@ func init() {
 	flag.IntVar(&logLevel, "mysql-log-level", -1, "The log level. it cannot be make if disable log. Level options: -1 debug, 0 info, 1 warn, 2 error, 3 dPanic, 4 panic, 5 fatal. Default log level is debugLevel")
 	flag.IntVar(&maxIdleConns, "mysql-maxIdleConns", 10, "The maximum number of connections in the idle connection pool. default 10")
 	flag.IntVar(&maxOpenConns, "mysql-maxOpenConns", 20, "The maximum number of open connections to the database. default 20")
+	flag.StringVar(&engine, "mysql-engine", "InnoDB", "default innoDB")
+	flag.StringVar(&charset, "mysql-charset", "utf8", "default utf8")
+	flag.StringVar(&collate, "mysql-collate", "utf8_unicode_ci", "default utf8_unicode_ci")
 
 	clause.SetDmlExpressions(map[string]clause.Expr{
 		(&Terms{}).GetTag(): terms,
@@ -61,7 +71,17 @@ func init() {
 		(&Avg{}).GetTag(): avg,
 		(&Min{}).GetTag(): min,
 		(&Max{}).GetTag(): max,
+
+		(&Bool{}).GetTag(): bool1,
 	})
+
+	structor.SetCreateExpr(create)
+	structor.SetAddExpr(add)
+	structor.SetModifyExpr(modify)
+	structor.SetPrimaryExpr(primary)
+	structor.SetIndexExpr(index)
+	structor.SetUniqueExpr(unique)
+	structor.SetDropIndexExpr(dropIndex)
 }
 
 type Dorm struct {
@@ -154,6 +174,10 @@ func (d *Dorm) Order(order ...string) dorm.Dorm {
 func (d *Dorm) FindOne(ctx context.Context) (map[string]interface{}, error) {
 	ret := make(map[string]interface{})
 	err := d.db.Where(d.builder.val.Condition.String(), d.builder.val.vars...).Find(&ret).Error
+	if err != nil {
+		return nil, err
+	}
+	err = d.unmarshal(ret)
 	return ret, err
 }
 
@@ -163,6 +187,11 @@ func (d *Dorm) Find(ctx context.Context) ([]map[string]interface{}, error) {
 		d.db = d.db.Select(d.builder.agg.String())
 	}
 	err := d.db.Where(d.builder.val.Condition.String(), d.builder.val.vars...).Find(&ret).Error
+	if err != nil {
+		return nil, err
+	}
+
+	err = d.unmarshal(ret)
 	return ret, err
 }
 
@@ -184,7 +213,11 @@ func (d *Dorm) Insert(ctx context.Context, entities ...interface{}) (int64, erro
 		ormEntities = append(ormEntities, e)
 	}
 
-	err := d.db.Debug().CreateInBatches(ormEntities, BATCHSIZE).Error
+	err := d.marshal(ormEntities)
+	if err != nil {
+		return 0, err
+	}
+	err = d.db.Debug().CreateInBatches(ormEntities, BATCHSIZE).Error
 	ret = int64(len(entities))
 	return ret, err
 }
@@ -199,11 +232,121 @@ func (d *Dorm) Delete(ctx context.Context) (int64, error) {
 	return affected, nil
 }
 
+// ************************************************************************************************************
+
+func (d *Dorm) Create(ctx context.Context, constructor structor.Constructor) error {
+	return d.exec(constructor)
+}
+
+func (d *Dorm) Add(ctx context.Context, constructor structor.Constructor) error {
+	return d.exec(constructor)
+}
+
+func (d *Dorm) Modify(ctx context.Context, constructor structor.Constructor) error {
+	return d.exec(constructor)
+}
+
+func (d *Dorm) Primary(ctx context.Context, constructor structor.Constructor) error {
+	return d.exec(constructor)
+}
+
+func (d *Dorm) exec(constructor structor.Constructor) error {
+	builder := &MYSQL{
+		raw: bytes.Buffer{},
+	}
+	constructor.Build(builder)
+	return d.db.Exec(builder.raw.String()).Error
+}
+
+func (d *Dorm) Index(ctx context.Context, constructor structor.Constructor) error {
+	return d.exec(constructor)
+}
+
+func (d *Dorm) Unique(ctx context.Context, constructor structor.Constructor) error {
+	return d.exec(constructor)
+}
+
+func (d *Dorm) DropIndex(ctx context.Context, constructor structor.Constructor) error {
+	return d.exec(constructor)
+}
+
+const suffix = "_c"
+
+func (d *Dorm) marshal(entities interface{}) error {
+	var doMarshal = func(entity map[string]interface{}) error {
+		for key, value := range entity {
+			if strings.HasSuffix(key, suffix) {
+				data, err := json.Marshal(value)
+				if err != nil {
+					return err
+				}
+				reflect.ValueOf(entity).
+					SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(string(data)))
+			}
+		}
+		return nil
+	}
+
+	switch v := entities.(type) {
+	case []map[string]interface{}:
+		for _, entity := range v {
+			err := doMarshal(entity)
+			if err != nil {
+				return err
+			}
+		}
+	case map[string]interface{}:
+		err := doMarshal(v)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (d *Dorm) unmarshal(entities interface{}) error {
+	var doUnmarshal = func(entity map[string]interface{}) error {
+		for key, value := range entity {
+			data, ok := value.(string)
+			if !ok {
+				continue
+			}
+			if strings.HasSuffix(key, suffix) {
+				var elem interface{}
+				err := json.Unmarshal([]byte(data), &elem)
+				if err != nil {
+					return err
+				}
+				reflect.ValueOf(entity).
+					SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(elem))
+			}
+		}
+		return nil
+	}
+
+	switch v := entities.(type) {
+	case []map[string]interface{}:
+		for _, entity := range v {
+			err := doUnmarshal(entity)
+			if err != nil {
+				return err
+			}
+		}
+	case map[string]interface{}:
+		err := doUnmarshal(v)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 type MYSQL struct {
 	table string
 
 	val *ConditionVal
 	agg bytes.Buffer
+	raw bytes.Buffer
 }
 
 type ConditionVal struct {
@@ -242,4 +385,18 @@ func (m *MYSQL) AddAggVar(key string, value interface{}) {
 		m.agg.WriteString(", ")
 	}
 	m.agg.WriteString(fmt.Sprintf("%s %s", value, key))
+}
+
+func (m *MYSQL) WriteRaw(s string) {
+	m.raw.WriteString(s)
+}
+
+func (m *MYSQL) AddRawVal(content interface{}) {
+	if s, ok := content.(string); ok {
+		m.WriteRaw(s)
+	}
+}
+
+func (m *MYSQL) AddIndex(s string) {
+	m.WriteRaw(s)
 }

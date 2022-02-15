@@ -1,13 +1,6 @@
 package clause
 
-import (
-	"errors"
-)
-
-var (
-	// ErrNoExpression no expression
-	ErrNoExpression = errors.New("no expression like this")
-)
+import "github.com/quanxiang-cloud/structor/pkg/errors"
 
 type Expr func() Expression
 
@@ -25,17 +18,15 @@ func getDmlExpressions() map[string]Expr {
 func GetDmlExpression(op string, column string, values ...interface{}) (Expression, error) {
 	exprs := getDmlExpressions()
 	if exprs == nil {
-		return nil, ErrNoExpression
+		return nil, errors.ErrNoExpression
 	}
 
 	expr, ok := exprs[op]
 	if !ok {
-		return nil, ErrNoExpression
+		return nil, errors.ErrNoExpression
 	}
 
 	expression := expr()
 	expression.Set(column, values...)
 	return expression, nil
 }
-
-var ddlExprs map[string]Expr

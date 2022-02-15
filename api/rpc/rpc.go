@@ -27,8 +27,12 @@ func New(ctx context.Context) (*Server, error) {
 	dsl := new(ctx, &Config{
 		DB: db,
 	})
+	ddl := newDDL(ctx, &Config{
+		DB: db,
+	})
 
 	pb.RegisterDSLServiceServer(server, dsl)
+	pb.RegisterDDLServiceServer(server, ddl)
 
 	return &Server{
 		Server: server,

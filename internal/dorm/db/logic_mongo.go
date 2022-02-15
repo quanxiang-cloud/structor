@@ -2,7 +2,13 @@
 
 package db
 
-import "github.com/quanxiang-cloud/structor/internal/dorm/clause"
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/quanxiang-cloud/structor/internal/dorm/clause"
+	"github.com/quanxiang-cloud/structor/internal/service/dsl"
+)
 
 type MUST struct {
 	clause.MUST
@@ -85,4 +91,58 @@ func (r *RANGE) Build(builder clause.Builder) {
 			builder.AddVar(vars)
 		}
 	}
+}
+
+type Bool struct {
+	clause.Bool
+}
+
+func bool1() clause.Expression {
+	return &Bool{}
+}
+
+func (b *Bool) Build(builder clause.Builder) {
+	var queryExpr = func(query dsl.Query) (clause.Expression, error) {
+		if len(query) == 0 {
+			return nil, nil
+		}
+
+		for op, field := range query {
+			for name, value := range field {
+				return clause.GetDmlExpression(op, name, dsl.Disintegration(value)...)
+			}
+		}
+		return nil, fmt.Errorf("query must have one")
+	}
+
+	var (
+		queries []dsl.Query
+		subExpr = make([]interface{}, 0, len(b.Vars))
+	)
+
+	querBytes, err := json.Marshal(b.Vars)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(querBytes, &queries)
+	if err != nil {
+		return
+	}
+
+	for _, query := range queries {
+		expr, err := queryExpr(query)
+		if err != nil {
+			continue
+		}
+		if expr != nil {
+			subExpr = append(subExpr, expr)
+		}
+	}
+
+	where, err := clause.GetDmlExpression(b.Column, "", subExpr...)
+	if err != nil {
+		return
+	}
+
+	where.Build(builder)
 }
