@@ -270,12 +270,12 @@ func (d *Dorm) DropIndex(ctx context.Context, constructor structor.Constructor) 
 	return d.exec(constructor)
 }
 
-const suffix = "_c"
+const prefix = "cpx_"
 
 func (d *Dorm) marshal(entities interface{}) error {
-	var doMarshal = func(entity map[string]interface{}) error {
+	doMarshal := func(entity map[string]interface{}) error {
 		for key, value := range entity {
-			if strings.HasSuffix(key, suffix) {
+			if strings.HasPrefix(key, prefix) {
 				data, err := json.Marshal(value)
 				if err != nil {
 					return err
@@ -305,7 +305,7 @@ func (d *Dorm) marshal(entities interface{}) error {
 }
 
 func (d *Dorm) unmarshal(entities interface{}) error {
-	var doUnmarshal = func(entity map[string]interface{}) error {
+	doUnmarshal := func(entity map[string]interface{}) error {
 		for key, value := range entity {
 			data, ok := value.(string)
 			if !ok {
