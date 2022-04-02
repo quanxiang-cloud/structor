@@ -1,4 +1,5 @@
-//+build mysql
+//go:build mysql
+// +build mysql
 
 package db
 
@@ -270,12 +271,12 @@ func (d *Dorm) DropIndex(ctx context.Context, constructor structor.Constructor) 
 	return d.exec(constructor)
 }
 
-const suffix = "_c"
+const prefix = "cpx_"
 
 func (d *Dorm) marshal(entities interface{}) error {
 	var doMarshal = func(entity map[string]interface{}) error {
 		for key, value := range entity {
-			if strings.HasSuffix(key, suffix) {
+			if strings.HasPrefix(key, prefix) {
 				data, err := json.Marshal(value)
 				if err != nil {
 					return err
