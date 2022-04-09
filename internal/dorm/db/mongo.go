@@ -5,6 +5,7 @@ package db
 import (
 	"context"
 	"flag"
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -29,7 +30,19 @@ var (
 	password      string
 	passwordSet   bool
 	database      string
+	prefixes      VarPrefixArray
 )
+
+type VarPrefixArray []string
+
+func (v *VarPrefixArray) String() string {
+	return fmt.Sprint(*v)
+}
+
+func (v *VarPrefixArray) Set(s string) error {
+	*v = append(*v, strings.Split(s, ",")...)
+	return nil
+}
 
 func init() {
 	flag.StringVar(&host, "mongo-host", "127.0.0.1:27017", "Mongo host. default 127.0.0.1:27017")
@@ -40,6 +53,7 @@ func init() {
 	flag.StringVar(&password, "mongo-password", "", "The password for authentication. This must not be specified for X509 and is optional for GSSAPI authentication.")
 	flag.BoolVar(&passwordSet, "mongo-password-set", false, "For GSSAPI, this must be true if a password is specified, even if the password is the empty string, and false if no password is specified, indicating that the password should be taken from the context of the running process.")
 	flag.StringVar(&database, "mongo-database", "", "Database name.")
+	flag.Var(&prefixes, "prefixes", "The prefix of the row name. It will be used to serial the table content. It can be multiple. default []")
 
 	// expressions
 	clause.SetDmlExpressions(map[string]clause.Expr{
@@ -317,7 +331,7 @@ func (d *Dorm) marshal(entities interface{}) error {
 }
 
 func (d *Dorm) unmarshal(entities interface{}) error {
-	var doUnmarshal = func(entity map[string]interface{}) error {
+	doUnmarshal := func(entity map[string]interface{}) error {
 		for key, value := range entity {
 			// TODO: Whether to judge the type of interface {}
 			pa, ok := value.(primitive.A)

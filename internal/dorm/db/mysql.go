@@ -35,10 +35,22 @@ var (
 	maxIdleConns int
 	maxOpenConns int
 
-	engine  string
-	charset string
-	collate string
+	engine   string
+	charset  string
+	collate  string
+	prefixes VarPrefixArray
 )
+
+type VarPrefixArray []string
+
+func (v *VarPrefixArray) String() string {
+	return fmt.Sprint(*v)
+}
+
+func (v *VarPrefixArray) Set(s string) error {
+	*v = append(*v, strings.Split(s, ",")...)
+	return nil
+}
 
 func init() {
 	flag.StringVar(&host, "mysql-host", "127.0.0.1:3306", "MySQL host. default 127.0.0.1:3306")
@@ -52,6 +64,7 @@ func init() {
 	flag.StringVar(&engine, "mysql-engine", "InnoDB", "default innoDB")
 	flag.StringVar(&charset, "mysql-charset", "utf8", "default utf8")
 	flag.StringVar(&collate, "mysql-collate", "utf8_unicode_ci", "default utf8_unicode_ci")
+	flag.Var(&prefixes, "prefixes", "The prefix of the row name. It will be used to serial the table content. It can be multiple. default []")
 
 	clause.SetDmlExpressions(map[string]clause.Expr{
 		(&Terms{}).GetTag(): terms,
@@ -270,18 +283,18 @@ func (d *Dorm) DropIndex(ctx context.Context, constructor structor.Constructor) 
 	return d.exec(constructor)
 }
 
-const suffix = "_c"
-
 func (d *Dorm) marshal(entities interface{}) error {
-	var doMarshal = func(entity map[string]interface{}) error {
+	doMarshal := func(entity map[string]interface{}) error {
 		for key, value := range entity {
-			if strings.HasSuffix(key, suffix) {
-				data, err := json.Marshal(value)
-				if err != nil {
-					return err
+			for _, prefix := range prefixes {
+				if strings.HasPrefix(key, prefix) {
+					data, err := json.Marshal(value)
+					if err != nil {
+						return err
+					}
+					reflect.ValueOf(entity).
+						SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(string(data)))
 				}
-				reflect.ValueOf(entity).
-					SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(string(data)))
 			}
 		}
 		return nil
@@ -305,20 +318,22 @@ func (d *Dorm) marshal(entities interface{}) error {
 }
 
 func (d *Dorm) unmarshal(entities interface{}) error {
-	var doUnmarshal = func(entity map[string]interface{}) error {
+	doUnmarshal := func(entity map[string]interface{}) error {
 		for key, value := range entity {
 			data, ok := value.(string)
 			if !ok {
 				continue
 			}
-			if strings.HasSuffix(key, suffix) {
-				var elem interface{}
-				err := json.Unmarshal([]byte(data), &elem)
-				if err != nil {
-					return err
+			for _, prefix := range prefixes {
+				if strings.HasPrefix(key, prefix) {
+					var elem interface{}
+					err := json.Unmarshal([]byte(data), &elem)
+					if err != nil {
+						return err
+					}
+					reflect.ValueOf(entity).
+						SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(elem))
 				}
-				reflect.ValueOf(entity).
-					SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(elem))
 			}
 		}
 		return nil
