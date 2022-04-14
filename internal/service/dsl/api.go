@@ -47,7 +47,7 @@ type FindOneResp struct {
 	Data interface{}
 }
 
-// FIXME: How to find the structure compressed into flat layer
+// FIXME: How to find the structure compressed into flat layer.
 func (d *dsl) FindOne(ctx context.Context, req *FindOneReq) (*FindOneResp, error) {
 	where, aggs, err := d.convert(req.DSL)
 	if err != nil {
@@ -86,7 +86,7 @@ type FindResp struct {
 	Count int64
 }
 
-// FIXME: How to find the structure compressed into flat layer
+// FIXME: How to find the structure compressed into flat layer.
 func (d *dsl) Find(ctx context.Context, req *FindReq) (*FindResp, error) {
 	where, aggs, err := d.convert(req.DSL)
 	if err != nil {
@@ -100,6 +100,10 @@ func (d *dsl) Find(ctx context.Context, req *FindReq) (*FindResp, error) {
 
 	if aggs != nil {
 		ql = ql.Select(aggs...)
+	}
+	count, err := ql.Count(ctx)
+	if err != nil {
+		return &FindResp{}, err
 	}
 
 	ql = ql.Offset((req.Page - 1) * req.Size).Limit(req.Size)
@@ -117,7 +121,7 @@ func (d *dsl) Find(ctx context.Context, req *FindReq) (*FindResp, error) {
 
 	return &FindResp{
 		Data:  dl,
-		Count: int64(len(dl)),
+		Count: count,
 	}, nil
 }
 
