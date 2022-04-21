@@ -7,14 +7,14 @@ We use json to define table's columns data type
 
 ## Getting Started
 
-Structor implements GRPC API for services call. gRPC is useful for low-latency, high performance scenarios and has language integration using the proto clients. If you want to use Structor for your project, refer [GRPC](!https://grpc.io/docs/) for more information about GRPC. Structor can be started up as a service or a sidecar with Kubernetes POD.
+Structor implements GRPC API for services call. gRPC is useful for low-latency, high performance scenarios and has language integration using the proto clients. If you want to use Structor for your project, refer [GRPC](!https://grpc.io/docs/) for more information about GRPC. Structor can be started up as a service or a sidecar with Kubernetes pod.
 
 ### Installation
 
 ```
 git clone https://github.com/quanxiang-cloud/structor.git
 cd structor
-CGO_ENABLED=1 GOARCH=amd64 GOOS=Linux go build -o structor cmd/structor/main.go
+CGO_ENABLED=1 GOARCH=amd64 GOOS=Linux go build -tags mysql -o structor cmd/structor/main.go
 ```
 > **Notice:**
 >
@@ -43,7 +43,7 @@ Structor supports Data Definition Statements with DDL and Data Manipulation Stat
 
 Below code  will be use in all code example,  just replace "// Add  code  here" in your case.
 
-```
+```go
 package main
 
 import (
@@ -108,7 +108,7 @@ func rawToAny(raw []byte) (*anypb.Any, error) {
 
 Create Table:
 
-```
+```go
   _, err := ddl.Create(context.Background(), &client.CreateReq{
 		TableName: "idtest",
 		Fields: []*client.Field{
@@ -126,7 +126,7 @@ Create Table:
 
 Add column definition:
 
-```
+```go
   _, err := ddl.Add(context.Background(), &client.AddReq{
 		TableName: "idtest",
 		Fields: []*client.Field{
@@ -162,7 +162,7 @@ Add column definition:
 
 Update table:
 
-```
+```go
 	_, err := ddl.Modify(context.Background(), &client.ModifyReq{
 		TableName: "idtest",
 		Fields: []*client.Field{
@@ -192,7 +192,7 @@ Update table:
 
  Query match records :
 
-```
+```go
   queryBody, err := rawToAny([]byte(`{
 		"query": {
 			"match": {
@@ -221,7 +221,7 @@ Update table:
 
 Query records:
 
-```
+```go
   any, err := rawToAny([]byte(`
 	{
 		"query": {
@@ -270,7 +270,7 @@ Query records:
 
 Delete records:
 
-```
+```go
 	delBody, err := rawToAny([]byte(`{
 		"query": {
 			"range": {
@@ -298,7 +298,7 @@ Delete records:
 
 Count records:
 
-```
+```go
 	cuBody, err := rawToAny([]byte(`{
 		"query": {
 			"match": {
@@ -323,7 +323,7 @@ Count records:
 
 Insert record:
 
-```
+```go
 	entity, err := rawToAny([]byte(`{
 		"id": "136"
 	}`))
@@ -351,7 +351,7 @@ Insert record:
 
 Update records
 
-```
+```go
 	updateBody, err := rawToAny([]byte(`{
 		"query": {
 			"term": {
