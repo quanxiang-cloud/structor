@@ -388,17 +388,17 @@ Folowing DataBases are supported.
 
 | Database | CRUD | index | primary key| foreign key| version|
 |---|----|----|---|---|---|
-| MySQL| [x] | [x] | [x] | [x] | 5.7 or later |
-| MongoDB | [x] | [x] | | | 4.0 or later |
+| MySQL| ✅ | ✅ | ✅ | ✅ | 5.7 or later |
+| MongoDB | ✅ | ✅ | | | 4.0 or later |
 
 Plan to support:
 
 | Database | CRUD | index | primary key| foreign key| version|
 |---|----|----|---|---|---|
-| Oracle | [] | [] | [] | [] |  |
-| PostgreSQL | [] | [] | [] | [] |  |
-| TiDB | [] | [] | [] | [] |  |
-| More | [] | [] | [] | [] |  |
+| Oracle |  |  |  |  |  |
+| PostgreSQL |  |  |  |  |  |
+| TiDB |  |  |  |  |  |
+| More |  |  |  |  |  |
 
 ## Contributing to Structor
 
