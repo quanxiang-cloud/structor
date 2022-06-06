@@ -71,10 +71,11 @@ func init() {
 		(&SHOULD{}).GetTag():  should,
 		(&RANGE{}).GetTag():   range1,
 
-		(&Sum{}).GetTag(): sum,
-		(&Avg{}).GetTag(): avg,
-		(&Min{}).GetTag(): min,
-		(&Max{}).GetTag(): max,
+		(&Sum{}).GetTag():   sum,
+		(&Avg{}).GetTag():   avg,
+		(&Min{}).GetTag():   min,
+		(&Max{}).GetTag():   max,
+		(&Count{}).GetTag(): count,
 
 		(&Bool{}).GetTag(): bool1,
 	})
@@ -205,12 +206,16 @@ func (d *Dorm) agg(ctx context.Context) ([]map[string]interface{}, error) {
 	if vars := d.builder.Vars; len(vars) != 0 {
 		bsons = append(bsons, bson.M{"$match": vars})
 	}
-	bsons = append(bsons, bson.M{
-		"$group": d.builder.Agg,
-	}, bson.M{
-		"$project": bson.M{"_id": 0},
-	})
-
+	_, ok := d.builder.Agg["$count"]
+	if ok {
+		bsons = append(bsons, d.builder.Agg)
+	} else {
+		bsons = append(bsons, bson.M{
+			"$group": d.builder.Agg,
+		}, bson.M{
+			"$project": bson.M{"_id": 0},
+		})
+	}
 	cursor, err := d.C.Aggregate(ctx, bsons, nil)
 	if err != nil {
 		return nil, err

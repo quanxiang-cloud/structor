@@ -70,3 +70,16 @@ func (max *Max) Build(builder clause.Builder) {
 		builder.AddAggVar(max.Alias, bson.M{"$max": "$" + value})
 	}
 }
+
+// Max Max
+type Count struct {
+	clause.Count
+}
+
+func count() clause.Expression {
+	return &Count{}
+}
+
+func (count *Count) Build(builder clause.Builder) {
+	builder.AddAggVar("$count", count.Alias)
+}
