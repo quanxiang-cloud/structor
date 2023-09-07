@@ -28,6 +28,9 @@ type Field map[string]Value
 type Value interface{}
 
 func Disintegration(v Value) []interface{} {
+	if v == nil {
+		return nil
+	}
 	switch reflect.TypeOf(v).Kind() {
 	case reflect.Ptr:
 		return Disintegration(reflect.ValueOf(v).Elem())

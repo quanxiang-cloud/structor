@@ -284,7 +284,11 @@ func (d *dsl) query(query Query) (clause.Expression, error) {
 
 	for op, field := range query {
 		for name, value := range field {
-			return clause.GetDmlExpression(op, name, Disintegration(value)...)
+			values := Disintegration(value)
+			if values == nil {
+				return nil, nil
+			}
+			return clause.GetDmlExpression(op, name, values...)
 		}
 	}
 	return nil, fmt.Errorf("query must have one")
